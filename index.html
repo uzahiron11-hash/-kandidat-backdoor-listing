@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Kandidat Backdoor Listing Berikutnya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+      :root {
+        --bg: #edf1ee;
+        --surface: #ffffff;
+        --surface-2: #f4f7f4;
+        --ink: #15211b;
+        --ink-2: #43554b;
+        --ink-3: #71837a;
+        --line: #d3ddd6;
+        --accent: #0c6b47;
+        --accent-soft: #e0efe7;
+        --amber: #9a6a08;
+        --amber-soft: #f7ecd2;
+        --red: #a92c22;
+        --red-soft: #f9e3e0;
+        --blue: #2c5d8a;
+        --blue-soft: #e2ecf5;
+        --up: #0c6b47;
+        --down: #a92c22;
+        --chart-line: #0c6b47;
+        --chart-grid: #d3ddd6;
+        --shadow: 0 1px 2px rgba(21,33,27,.06), 0 8px 24px rgba(21,33,27,.06);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0c130f;
+          --surface: #141f19;
+          --surface-2: #182620;
+          --ink: #e7efe9;
+          --ink-2: #a9bcb1;
+          --ink-3: #7d9184;
+          --line: #2a3a31;
+          --accent: #3ec98d;
+          --accent-soft: #173528;
+          --amber: #e2ac3a;
+          --amber-soft: #3a2f14;
+          --red: #ef7a6d;
+          --red-soft: #3d1f1b;
+          --blue: #7fb0dd;
+          --blue-soft: #1d2f42;
+          --up: #3ec98d;
+          --down: #ef7a6d;
+          --chart-line: #3ec98d;
+          --chart-grid: #2a3a31;
+          --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.3);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .wrap { max-width: 1140px; margin: 0 auto; padding: 0 20px 72px; }
+      a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+      a:hover { text-decoration-thickness: 2px; }
+
+      /* ---------- warning banner ---------- */
+      .warn {
+        background: var(--amber-soft);
+        border-bottom: 2px solid var(--amber);
+        color: var(--ink);
+      }
+      .warn .wrap { padding-top: 14px; padding-bottom: 14px; }
+      .warn p { margin: 0; font-size: 14.5px; }
+      .warn strong { color: var(--amber); letter-spacing: .04em; }
+
+      /* ---------- hero ---------- */
+      header.hero { padding: 40px 0 8px; }
+      .hero .kicker {
+        font-family: "IBM Plex Mono", monospace; font-size: 12.5px; letter-spacing: .14em;
+        text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+      }
+      h1 { font-size: clamp(30px, 5.4vw, 46px); line-height: 1.12; margin: 0 0 14px; font-weight: 700; letter-spacing: -0.01em; }
+      .lede { font-size: 17.5px; color: var(--ink-2); max-width: 760px; margin: 0 0 22px; }
+      .lede strong { color: var(--ink); }
+      .meta-row { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13.5px; color: var(--ink-3); font-family: "IBM Plex Mono", monospace; margin-bottom: 26px; }
+      .stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+      .stat {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+        padding: 16px 18px; box-shadow: var(--shadow);
+      }
+      .stat .num { font-family: "IBM Plex Mono", monospace; font-size: 30px; font-weight: 700; line-height: 1; }
+      .stat .lbl { font-size: 13px; color: var(--ink-2); margin-top: 7px; line-height: 1.4; }
+      .stat.amber .num { color: var(--amber); }
+      .stat.red .num { color: var(--red); }
+      .stat.green .num { color: var(--accent); }
+
+      /* ---------- sections ---------- */
+      section { margin-top: 52px; }
+      h2 { font-size: 24px; margin: 0 0 6px; letter-spacing: -0.01em; }
+      .sec-sub { color: var(--ink-2); max-width: 780px; margin: 0 0 20px; font-size: 15.5px; }
+      h3 { font-size: 17px; margin: 0 0 8px; }
+
+      /* ---------- reference pattern ---------- */
+      .ref-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+      .ref-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); }
+      .ref-card .tk { font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 20px; }
+      .ref-card .shell { font-size: 12.5px; color: var(--ink-3); min-height: 34px; margin: 2px 0 10px; }
+      .ref-card dl { margin: 0; font-size: 13px; }
+      .ref-card dt { color: var(--ink-3); font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; margin-top: 8px; }
+      .ref-card dd { margin: 1px 0 0; font-weight: 600; }
+      .criteria { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 12px; }
+      .crit { border: 1px dashed var(--line); border-radius: 10px; padding: 14px 16px; background: var(--surface-2); font-size: 13.5px; }
+      .crit .n { font-family: "IBM Plex Mono", monospace; font-weight: 700; color: var(--accent); display: block; font-size: 15px; margin-bottom: 4px; }
+      .fineprint { font-size: 13px; color: var(--ink-3); margin-top: 12px; }
+
+      /* ---------- spotlight ---------- */
+      .spot {
+        background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--accent);
+        border-radius: 12px; padding: 26px; box-shadow: var(--shadow);
+      }
+      .spot-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-bottom: 4px; }
+      .spot-head .tk { font-family: "IBM Plex Mono", monospace; font-size: 34px; font-weight: 700; }
+      .spot-head .nm { font-size: 18px; font-weight: 600; }
+      .badge {
+        display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+        padding: 4px 9px; border-radius: 999px; vertical-align: middle;
+      }
+      .badge.a { background: var(--accent-soft); color: var(--accent); }
+      .badge.b { background: var(--amber-soft); color: var(--amber); }
+      .badge.x { background: var(--red-soft); color: var(--red); }
+      .badge.done { background: var(--blue-soft); color: var(--blue); }
+      .spot-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 28px; margin-top: 14px; }
+      .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin: 0 0 16px; }
+      .fact .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+      .fact .v { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 17px; }
+      .fact .v small { font-size: 12px; color: var(--ink-3); font-weight: 400; }
+      .score { font-family: "IBM Plex Mono", monospace; }
+      .stars { color: var(--amber); letter-spacing: 1px; font-size: 15px; }
+      .half-star { color: var(--amber); opacity: .45; }
+      .spot p { margin: 0 0 12px; font-size: 15px; }
+      .spot p:last-child { margin-bottom: 0; }
+      .minus { background: var(--surface-2); border-radius: 8px; padding: 12px 14px; font-size: 14px; }
+      .minus strong { color: var(--amber); }
+      .srcs { font-size: 13px; color: var(--ink-3); margin-top: 14px; }
+      .srcs a { margin-right: 14px; white-space: nowrap; }
+      .chart-box { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+      .chart-box .cap { font-size: 12.5px; color: var(--ink-3); margin-top: 8px; }
+      svg text { font-family: "IBM Plex Mono", monospace; }
+
+      /* ---------- explorer controls ---------- */
+      .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .chip {
+        font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+        background: var(--surface); color: var(--ink-2); border: 1px solid var(--line);
+        border-radius: 999px; padding: 8px 16px; min-height: 40px;
+      }
+      .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+      @media (prefers-color-scheme: dark) { .chip[aria-pressed="true"] { color: #08130d; } }
+      .controls label { font-size: 13.5px; color: var(--ink-2); margin-left: auto; display: flex; align-items: center; gap: 8px; }
+      .controls select {
+        font: inherit; font-size: 14px; padding: 8px 10px; border-radius: 8px;
+        border: 1px solid var(--line); background: var(--surface); color: var(--ink); min-height: 40px;
+      }
+      .count-line { font-size: 13.5px; color: var(--ink-3); margin: 0 0 14px; font-family: "IBM Plex Mono", monospace; }
+
+      /* ---------- candidate cards ---------- */
+      .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .card {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+        padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column;
+      }
+      .card.rumor { border-style: dashed; }
+      .card-top { display: flex; align-items: flex-start; gap: 12px; }
+      .card .tk { font-family: "IBM Plex Mono", monospace; font-size: 24px; font-weight: 700; line-height: 1.1; }
+      .card .nm { font-size: 13.5px; color: var(--ink-2); margin-top: 2px; }
+      .card .badge { margin-left: auto; flex-shrink: 0; text-align: center; }
+      .card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0 4px; }
+      .card-stats .k { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+      .card-stats .v { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 15.5px; margin-top: 2px; }
+      .card-stats .v small { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
+      .spark { margin: 10px 0 2px; }
+      .spark .cap { font-size: 11.5px; color: var(--ink-3); display: flex; justify-content: space-between; font-family: "IBM Plex Mono", monospace; }
+      .card .who { font-size: 14.5px; margin: 12px 0 0; }
+      .card .who strong { color: var(--ink-3); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 2px; }
+      .card .signal { font-size: 14.5px; margin: 10px 0 0; color: var(--ink); }
+      .card .minus { margin-top: 12px; }
+      .card .srcs { margin-top: auto; padding-top: 14px; }
+      .up { color: var(--up); } .down { color: var(--down); }
+
+      /* ---------- mcap chart ---------- */
+      .chart-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px; box-shadow: var(--shadow); }
+      .mcap-plot { position: relative; }
+      .mcap-grid { position: absolute; top: 0; bottom: 24px; width: 1px; background: var(--line); }
+      .mcap-row { padding: 6px 0; position: relative; }
+      .mcap-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+      .mcap-head .tk { font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 13.5px; }
+      .mcap-head .val { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+      .mcap-bar { height: 16px; border-radius: 3px; background: var(--accent); opacity: .9; min-width: 3px; }
+      .mcap-bar.rumor { background: var(--amber); opacity: .85; }
+      .mcap-axis { position: relative; height: 24px; }
+      .mcap-axis span { position: absolute; transform: translateX(-50%); font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+      .mcap-axis span.first { transform: none; }
+      .mcap-axis span.last { transform: translateX(-100%); }
+
+      /* ---------- verification layer ---------- */
+      .verif { border-radius: 8px; padding: 11px 13px; font-size: 13.5px; margin-top: 12px; line-height: 1.5; }
+      .verif .vlabel { display: block; font-weight: 700; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 3px; }
+      .verif.t1 { background: var(--accent-soft); }
+      .verif.t1 .vlabel { color: var(--accent); }
+      .verif.t2 { background: var(--amber-soft); }
+      .verif.t2 .vlabel { color: var(--amber); }
+      .verif.t3 { background: var(--red-soft); }
+      .verif.t3 .vlabel { color: var(--red); }
+      .verif .srcs { margin-top: 6px; padding-top: 0; font-size: 12.5px; }
+      .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .tier-panel { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--ink-3); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+      .tier-panel.t1 { border-top-color: var(--accent); }
+      .tier-panel.t2 { border-top-color: var(--amber); }
+      .tier-panel.t3 { border-top-color: var(--red); }
+      .tier-panel h3 { font-size: 16px; margin-bottom: 2px; }
+      .tier-panel .cnt { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--ink-3); }
+      .tier-panel p { font-size: 13.5px; color: var(--ink-2); margin: 10px 0 12px; }
+      .tier-panel ul { margin: 0; padding: 0; list-style: none; }
+      .tier-panel li { font-size: 13.5px; padding: 7px 0; border-top: 1px solid var(--line); }
+      .tier-panel li:first-child { border-top: none; }
+      .tier-panel li .tk { font-family: "IBM Plex Mono", monospace; font-weight: 700; }
+      .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .check { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; font-size: 14.5px; box-shadow: var(--shadow); }
+      .check strong.t { display: block; font-size: 15px; margin-bottom: 6px; }
+      .check p { margin: 0 0 6px; color: var(--ink-2); }
+      .check p:last-child { margin-bottom: 0; }
+      .check .asli { color: var(--accent); font-weight: 700; }
+      .check .goreng { color: var(--red); font-weight: 700; }
+      .vchips-label { font-size: 13.5px; color: var(--ink-2); font-weight: 600; }
+
+      /* ---------- not candidates ---------- */
+      .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .note-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+      .note-card p { font-size: 14.5px; margin: 8px 0 0; }
+      .note-card .tk { font-family: "IBM Plex Mono", monospace; font-size: 22px; font-weight: 700; }
+
+      /* ---------- risks ---------- */
+      .kdtn {
+        background: var(--red-soft); border: 1px solid var(--red); border-radius: 12px; padding: 22px; margin-bottom: 16px;
+      }
+      .kdtn h3 { color: var(--red); margin-bottom: 6px; }
+      .kdtn p { margin: 0; font-size: 15px; }
+      .risk-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; counter-reset: risk; }
+      .risk { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; font-size: 14.5px; box-shadow: var(--shadow); }
+      .risk strong { display: block; margin-bottom: 4px; font-size: 15px; }
+      .risk p { margin: 0; color: var(--ink-2); }
+
+      /* ---------- open questions / sources ---------- */
+      .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px; box-shadow: var(--shadow); }
+      .panel ul { margin: 0; padding-left: 20px; }
+      .panel li { margin-bottom: 8px; font-size: 15px; }
+      .panel li:last-child { margin-bottom: 0; }
+      .src-list { columns: 2; column-gap: 36px; font-size: 14px; }
+      .src-list li { break-inside: avoid; }
+      footer { margin-top: 56px; border-top: 1px solid var(--line); padding-top: 18px; font-size: 13px; color: var(--ink-3); }
+      footer p { margin: 0 0 8px; }
+
+      @media (max-width: 900px) {
+        .ref-grid, .criteria { grid-template-columns: repeat(2, 1fr); }
+        .tier-grid { grid-template-columns: 1fr; }
+        .check-grid { grid-template-columns: 1fr; }
+        .stat-strip { grid-template-columns: repeat(2, 1fr); }
+        .spot-grid { grid-template-columns: 1fr; }
+        .cards, .duo, .risk-list { grid-template-columns: 1fr; }
+        .src-list { columns: 1; }
+        .controls label { margin-left: 0; }
+      }
+      @media (max-width: 460px) {
+        .ref-grid, .criteria { grid-template-columns: 1fr; }
+        .facts { grid-template-columns: 1fr 1fr; }
+        .card-stats { grid-template-columns: repeat(3, 1fr); }
+        .spot { padding: 20px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="warn" role="note">
+      <div class="wrap">
+        <p><strong>PERINGATAN — SCREENING SPEKULATIF:</strong> halaman ini adalah hasil penyaringan pola, <strong>bukan rekomendasi investasi</strong>. Tidak ada jaminan satu pun emiten di bawah ini akan menyelesaikan backdoor listing — preseden terdekatnya, KDTN, justru batal di tengah jalan (lihat bagian risiko). Selalu tunggu keterbukaan resmi IDX sebelum mengambil keputusan.</p>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <header class="hero">
+        <p class="kicker">Screening BEI · Pola PANI / ARTO / BBHI / DNET / BBYB</p>
+        <h1>Kandidat Backdoor Listing Berikutnya</h1>
+        <p class="lede">Emiten cangkang mana yang sedang — atau berpotensi — diambil alih grup besar dengan perlakuan mirip lima kasus raksasa itu? Jawaban singkatnya: <strong>NAYZ</strong> adalah kandidat yang polanya paling mirip dengan PANI saat ini — meski status verifikasinya sendiri belum selesai. Tapi pola saja tidak cukup, jadi halaman ini dilengkapi <strong>lapisan verifikasi dokumen</strong>: dari 15 nama yang disaring, <strong>10 terbukti sudah closing pengendali + tender wajib</strong>, <strong>2 masih berjalan dan belum selesai</strong> (termasuk NAYZ), dan <strong>3 murni rumor tanpa satu pun dokumen</strong>.</p>
+        <div class="meta-row">
+          <span>Harga &amp; data pasar: 23 November 2026</span>
+          <span>Riset dibaca: 24 November 2026 (WIB)</span>
+          <span>Verifikasi dokumen: 24 November 2026</span>
+          <span>Sumber: berita bisnis &amp; keterbukaan IDX</span>
+        </div>
+        <div class="stat-strip">
+          <div class="stat green"><div class="num">10</div><div class="lbl">terbukti dokumen — closing pengendali + tender wajib (MTO) sudah terjadi</div></div>
+          <div class="stat amber"><div class="num">2</div><div class="lbl">berjalan tapi belum selesai — NAYZ (CSTA bersyarat) &amp; BLUE (closing belum terverifikasi)</div></div>
+          <div class="stat red"><div class="num">3</div><div class="lbl">belum terbukti — murni rumor / pola saja (UDNG, TAXI, GZCO)</div></div>
+          <div class="stat red"><div class="num">−71%</div><div class="lbl">saham KDTN dalam sebulan setelah CSPA-nya batal (5 Nov 2026)</div></div>
+        </div>
+      </header>
+
+      <section aria-labelledby="verifikasi">
+        <h2 id="verifikasi">Lapisan verifikasi: akuisisi asli atau gorengan?</h2>
+        <p class="sec-sub">Riset verifikasi (24 November 2026) memeriksa bukti keras tiap emiten — dokumen CSPA/PJBS di keterbukaan IDX, closing perubahan pengendali, tender wajib (MTO, POJK 9/2018), RUPSLB, bukti pembayaran, kronologi harga vs tanggal pengumuman, bantahan manajemen, dan riwayat UMA/suspensi. Hasilnya, 15 nama ini terbagi tiga:</p>
+        <div class="tier-grid">
+          <div class="tier-panel t1">
+            <h3>Akuisisi nyata — terbukti dokumen</h3>
+            <span class="cnt">10 emiten · closing pengendali + MTO sudah terjadi</span>
+            <p>Pengendali benar-benar berganti dan terdokumentasi resmi. Tapi ingat: <strong>pengendali berganti ≠ backdoor listing berhasil</strong> — harga akuisisi pengendali hanya Rp10–Rp94 per saham, jauh di bawah harga pasar saat pengumuman, dan aset baru yang dijanjikan sebagian besar belum menghasilkan pendapatan.</p>
+            <ul>
+              <li><span class="tk">LAPD</span> — closing 51% @Rp10 (10 Nov 2025) + MTO Rp51 selesai</li>
+              <li><span class="tk">EPAC</span> — closing 34,56% @Rp12, dua tahap (24 Jun &amp; 23 Jul 2026)</li>
+              <li><span class="tk">SOFA</span> — closing 70,96% @Rp21 (24 Okt 2025) + MTO Rp62</li>
+              <li><span class="tk">KRYA</span> — closing 41% @Rp33 (26 Agu 2025) + MTO selesai Des 2025</li>
+              <li><span class="tk">FUTR</span> — closing 45% @Rp11 (9 Sep 2025) + MTO Rp79</li>
+              <li><span class="tk">AMMS</span> — closing 51% @Rp30 (24 Des 2025) + MTO Rp156</li>
+              <li><span class="tk">IDEA</span> — closing 66,58% @Rp53,73 (9 Nov 2026) + RUPSLB menyetujui</li>
+              <li><span class="tk">INPS</span> — AJB 87,48% @Rp88,81 (23 Apr 2026) + MTO Rp552</li>
+              <li><span class="tk">VISI</span> — closing 61,85% @Rp94 (9 Jun 2026); akuisisi HMBC selesai 30 Okt 2026</li>
+              <li><span class="tk">DPUM</span> — closing 59,24% @Rp88 (8 Mei 2026); MTO tertunda resmi</li>
+            </ul>
+          </div>
+          <div class="tier-panel t2">
+            <h3>Berjalan tapi belum selesai</h3>
+            <span class="cnt">2 emiten · perjanjian ada, penyelesaian belum terbukti</span>
+            <p>Di sinilah risiko batal tinggal — presedennya KDTN: CSPA yang sudah ditandatangani pun diakhiri setelah 7 bulan (lihat bagian risiko).</p>
+            <ul>
+              <li><span class="tk">NAYZ</span> — pengendali Saiko sudah closing 29,41% @Rp23,50 (19 Agu 2026) + MTO Rp75; <strong>tetapi</strong> akuisisi Bangkok Tellink 75% baru CSTA bersyarat (2 Okt 2026) — belum RUPS independen, belum rights issue inbreng</li>
+              <li><span class="tk">BLUE</span> — CSPA Dragonmine/Huayou 80% ditandatangani 18 Feb 2026, target rampung Q2-2026; klarifikasi Okt 2026 menyebut negosiasi <em>masih berlangsung</em>, belum ada kesepakatan final — <strong>closing belum terverifikasi, risiko batal tinggi</strong></li>
+            </ul>
+          </div>
+          <div class="tier-panel t3">
+            <h3>Belum terbukti — rumor / gorengan</h3>
+            <span class="cnt">3 emiten · tanpa satu pun dokumen akuisisi</span>
+            <p>Tidak ditemukan pengumuman negosiasi, CSPA/PJBS, perubahan pengendali, atau MTO untuk ketiga nama ini. Dua di antaranya justru dibantah resmi oleh manajemennya sendiri.</p>
+            <ul>
+              <li><span class="tk">UDNG</span> — rumor FiberCo; manajemen membantah 20 Jan 2026 (PSP belum berubah, belum ada perjanjian definitif); UMA BEI 6–8 Feb 2026; dokumen Indosat tidak pernah menyebut UDNG</li>
+              <li><span class="tk">TAXI</span> — tidak ada sinyal apa pun; hanya tesis “mudah diakuisisi” karena tanpa pengendali sejak 22 Mei 2019 dan free float ~93,9%</li>
+              <li><span class="tk">GZCO</span> — rumor dibantah resmi dua kali: 18 Okt 2025 (tidak ada pembahasan resmi) dan Jun 2026 (tidak ada rencana aksi korporasi; fluktuasi “murni mekanisme pasar”)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="checklist">
+        <h2 id="checklist">Checklist: 7 tanda membedakan akuisisi asli vs gorengan</h2>
+        <p class="sec-sub">Dari riset verifikasi yang sama — cara praktis memeriksa emiten “calon backdoor” berikutnya sebelum percaya pada ceritanya:</p>
+        <div class="check-grid">
+          <div class="check"><strong class="t">1. Ada dokumen POJK 9/2018 di IDX, bukan cuma berita</strong>
+            <p><span class="asli">Asli:</span> rantai pengumuman negosiasi → CSPA/PJBS → pengumuman penyelesaian pengambilalihan, semuanya di idx.co.id dengan nomor surat dan tanggal.</p>
+            <p><span class="goreng">Gorengan:</span> hanya “dikabarkan”, “rumor kuat”, atau analisis yang menebak nama emiten — kasus UDNG: Indosat sendiri tidak pernah menyebut UDNG.</p></div>
+          <div class="check"><strong class="t">2. Uang dan harga tertulis — dan masuk akal</strong>
+            <p><span class="asli">Asli:</span> harga per saham, jumlah saham, total nilai, dan tanggal pembayaran tercantum; dana MTO dibuktikan referensi bank (AMMS: referensi BRI; NAYZ: rekening Bank IBK).</p>
+            <p><span class="goreng">Gorengan:</span> nilai transaksi tidak pernah disebut (BLUE: harga CSPA tidak diungkap), atau harga akuisisi privat 10–45× lebih murah dari harga pasar tanpa penjelasan (FUTR Rp11 vs Rp500; VISI Rp94 vs Rp1.095; LAPD Rp10 vs Rp186).</p></div>
+          <div class="check"><strong class="t">3. Closing terjadi, lalu MTO berjalan sesuai jadwal</strong>
+            <p><span class="asli">Asli:</span> ada tanggal closing dan MTO dengan periode + tanggal pembayaran yang kemudian terealisasi (LAPD, SOFA, FUTR, AMMS, INPS, IDEA; DPUM MTO-nya ditunda tetapi diumumkan resmi karena kebakaran pabrik).</p>
+            <p><span class="goreng">Gorengan:</span> CSPA ditandatangani lalu senyap berbulan-bulan (BLUE: target Q2-2026, Okt 2026 masih “negosiasi berlangsung”) — atau dibatalkan (KDTN, SPRE).</p></div>
+          <div class="check"><strong class="t">4. RUPSLB menyetujui hal konkret, bukan cuma janji</strong>
+            <p><span class="asli">Asli:</span> RUPSLB menyetujui ganti nama (SOFA, LAPD), ganti pengurus (IDEA, FUTR, LAPD), dan rights issue inbreng dengan aset yang disebutkan namanya dan dinilai (LAPD: BSS Rp38,85 miliar; EPAC: rights issue 2 miliar saham).</p>
+            <p><span class="goreng">Gorengan:</span> tidak ada RUPSLB sama sekali, atau RUPSLB hanya memuat “rencana” tanpa angka.</p></div>
+          <div class="check"><strong class="t">5. Aset baru benar-benar masuk dan menghasilkan</strong>
+            <p><span class="asli">Asli (bertahap):</span> anak usaha energi SOFA (AEA) didirikan dan masuk konsorsium waste-to-energy 10%; HMBC 72,91% selesai dibayar (VISI); ECGO dibeli dan kontrak 10.000 motor listrik ditandatangani (KRYA).</p>
+            <p><span class="goreng">Gorengan:</span> aset hanya disebut di siaran pers (“geothermal 220 MW”, “nikel Huayou”, “FiberCo Rp14,6 T”) tanpa akta, tanpa anak usaha baru, tanpa pendapatan — sementara harga sudah naik duluan.</p></div>
+          <div class="check"><strong class="t">6. Urutkan kronologi harga vs tanggal dokumen</strong>
+            <p><span class="goreng">Gorengan paling mudah dikenali di sini:</span> harga naik ratusan–ribuan persen <em>sebelum</em> pengumuman resmi (BLUE ~+1.900% dalam setahun; SOFA +616% dalam 3 bulan sebelum closing; LAPD +1.600% sebelum pengumuman; UDNG +248,94% dalam 6 bulan atas rumor).</p>
+            <p><span class="asli">Acuan sehat:</span> harga tender (MTO) menjadi “jangkar”. Bila harga pasar 5–10× harga tender (FUTR Rp620 vs tender Rp79; AMMS Rp420 vs tender Rp156), pasar sedang menghargai cerita, bukan transaksinya.</p></div>
+          <div class="check"><strong class="t">7. Dengarkan bantahan &amp; UMA — dan periksa rekam jejak pembelinya</strong>
+            <p><span class="goreng">Sinyal merah:</span> bantahan resmi (“tidak ada pembahasan resmi” — GZCO, 18 Okt 2025; “belum ada perjanjian definitif” — UDNG, 20 Jan 2026) serta UMA/suspensi/FCA. Itu bukan peluang beli.</p>
+            <p><span class="asli">Uji pembeli:</span> apakah pihak yang sama pernah membatalkan akuisisi lain? Saiko membatalkan SPRE lalu beralih ke NAYZ; grup Huayou membatalkan KDTN sementara BLUE masih menggantung.</p></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="pola">
+        <h2 id="pola">Pola acuannya: lima kasus raksasa</h2>
+        <p class="sec-sub">Backdoor listing = perusahaan besar masuk bursa bukan lewat IPO, melainkan dengan mengambil alih emiten kecil yang sudah tercatat, lalu menyuntikkan asetnya — biasanya lewat rights issue jumbo. Lima kasus inilah tolok ukurnya:</p>
+        <div class="ref-grid">
+          <div class="ref-card">
+            <div class="tk">PANI</div>
+            <div class="shell">Cangkang: PT Pratama Abadi Nusa Industri</div>
+            <dl>
+              <dt>Harga akuisisi</dt><dd>Rp54,12 miliar</dd>
+              <dt>Pengendali baru</dt><dd>Agung Sedayu + Salim</dd>
+              <dt>Rights issue</dt><dd>Rp6,56 T + Rp10,48 T</dd>
+            </dl>
+          </div>
+          <div class="ref-card">
+            <div class="tk">ARTO</div>
+            <div class="shell">Cangkang: Bank Artos → Bank Jago</div>
+            <dl>
+              <dt>Harga akuisisi</dt><dd>Rp242,99 miliar</dd>
+              <dt>Pengendali baru</dt><dd>Jerry Ng + Patrick Walujo</dd>
+              <dt>Rights issue</dt><dd>— (dalam brief)</dd>
+            </dl>
+          </div>
+          <div class="ref-card">
+            <div class="tk">BBHI</div>
+            <div class="shell">Cangkang: Bank Harda → Allo Bank</div>
+            <dl>
+              <dt>Harga akuisisi</dt><dd>Rp450 miliar</dd>
+              <dt>Pengendali baru</dt><dd>CT Corp</dd>
+              <dt>Rights issue</dt><dd>Rp4,8 T</dd>
+            </dl>
+          </div>
+          <div class="ref-card">
+            <div class="tk">DNET</div>
+            <div class="shell">Cangkang: Dyviacom Intrabumi</div>
+            <dl>
+              <dt>Jalur masuk</dt><dd>Rights issue</dd>
+              <dt>Pengendali baru</dt><dd>Grup Salim</dd>
+              <dt>Rights issue</dt><dd>Rp7 T</dd>
+            </dl>
+          </div>
+          <div class="ref-card">
+            <div class="tk">BBYB</div>
+            <div class="shell">Menjadi Bank Neo Commerce</div>
+            <dl>
+              <dt>Jalur masuk</dt><dd>Bertahap sejak 2019</dd>
+              <dt>Pengendali baru</dt><dd>Akulaku</dd>
+              <dt>Rights issue</dt><dd>— (dalam brief)</dd>
+            </dl>
+          </div>
+        </div>
+        <p class="fineprint">Angka-angka pola acuan di atas berasal dari brief penugasan riset dan tidak diverifikasi ulang terhadap sumber primer dalam riset ini.</p>
+
+        <h3 style="margin-top:26px">Lima kriteria screening yang dipakai</h3>
+        <div class="criteria">
+          <div class="crit"><span class="n">01</span>Cangkang berkapitalisasi pasar sangat kecil, dormant, atau berkinerja minimal — murah diambil alih.</div>
+          <div class="crit"><span class="n">02</span>Sinyal pengendali baru yang kredibel dan ber-ekosistem besar: konglomerat, grup teknologi/fintech, atau taipan.</div>
+          <div class="crit"><span class="n">03</span>Rencana atau potensi rights issue jumbo setelah pengambilalihan.</div>
+          <div class="crit"><span class="n">04</span>Indikasi ganti nama dan ganti sektor usaha.</div>
+          <div class="crit"><span class="n">05</span>Free float kecil; saham dikuasai segelintir pihak.</div>
+        </div>
+        <p class="fineprint">Konteks pasar: BEI mencatat 20 emiten telah menjalankan proses akuisisi hingga November 2025 — antara lain TGUK, KRYA, SOFA, dan FUTR — dan fenomena ini kembali mencuat pada 2026 lewat VISI (Bloomberg Technoz, 27 Agustus 2026).</p>
+      </section>
+
+      <section aria-labelledby="terkuat">
+        <h2 id="terkuat">Kandidat dengan pola paling mirip: NAYZ</h2>
+        <p class="sec-sub">Satu-satunya kandidat yang keempat kriteria intinya terpenuhi sekaligus — dan masih berada di tahap injeksi aset, bukan sekadar rumor. “Paling mirip” di sini soal <strong>kemiripan pola</strong> dengan PANI; status verifikasinya sendiri adalah <strong>berjalan tapi belum selesai</strong>, karena pengakuisisinya belum terbukti grup raksasa dan transaksi asetnya belum closing (lihat kotak verifikasi di kartunya).</p>
+        <article class="spot">
+          <div class="spot-head">
+            <span class="tk">NAYZ</span>
+            <span class="nm">PT Hassana Boga Sejahtera Tbk</span>
+            <span class="badge b">Verifikasi: berjalan, belum selesai</span>
+          </div>
+          <div class="spot-grid">
+            <div>
+              <div class="facts">
+                <div class="fact"><div class="k">Market cap (estimasi)</div><div class="v">~Rp253 M</div></div>
+                <div class="fact"><div class="k">Harga 23 Nov 2026</div><div class="v">Rp99 <small class="up">+10,0% hari itu</small></div></div>
+                <div class="fact"><div class="k">Kemiripan pola</div><div class="v score"><span class="stars">★★★★</span><span class="half-star">★</span> 4,5/5</div></div>
+                <div class="fact"><div class="k">Nilai transaksi masuk</div><div class="v">~Rp2,2 T <small>≈ 9× market cap</small></div></div>
+              </div>
+              <p><strong>Pengendali baru:</strong> Saiko Consultancy Pte. Ltd. (Singapura) mengambil 750 juta saham (29,41%) dari PT Asia Intrainvesta pada 19 Agustus 2026 @Rp23,5, disusul tender wajib 5 Okt–3 Nov 2026 @Rp75 (maks Rp87,68 miliar), plus opsi tahap 2 atas 250 juta saham lagi (9,80%).</p>
+              <p><strong>Sinyalnya:</strong> pada 2 Oktober 2026 NAYZ menandatangani perjanjian bersyarat untuk mengakuisisi 75% Bangkok Tellink Co., Ltd. (telekomunikasi &amp; solusi digital, Thailand) senilai maks US$125 juta (~Rp2,2 triliun) — 20% tunai dan <strong>80% dibayar lewat rights issue inbreng</strong>. NAYZ mengonfirmasi ke BEI (22 Oktober 2026) rencana rights issue dan perubahan kegiatan usaha dari makanan bayi ke telekomunikasi/teknologi tetap berjalan.</p>
+              <p><strong>Kenapa mirip PANI:</strong> ekuitas NAYZ per Juni 2026 hanya Rp63 miliar dengan kas Rp6,1 miliar, sementara nilai transaksinya ~Rp2,2 triliun — porsi tunainya saja ~73× kas. Cangkang mikro + pengendali baru + rights issue inbreng + ganti sektor.</p>
+              <div class="minus"><strong>Pengurang:</strong> Saiko adalah perusahaan baru (didirikan Januari 2026) dan ekosistem Bangkok Tellink belum sebesar Salim/CT Corp — kredibilitas “raksasa”-nya belum setara PANI/BBHI. Transaksi juga masih bersyarat: menunggu valuasi independen dan persetujuan RUPS independen.</div>
+              <div class="verif t2"><span class="vlabel">Status verifikasi: Berjalan tapi belum selesai</span>
+                Pengambilalihan pengendalinya <strong>sudah closing</strong>: Saiko membeli 750 juta saham (29,41%) @Rp23,50 = Rp17,63 miliar pada 19 Agu 2026, dan MTO @Rp75 berjalan 5 Okt–3 Nov 2026 (pembayaran 10 Nov 2026; hasilnya belum terverifikasi). Yang <strong>belum selesai</strong> adalah intinya: akuisisi Bangkok Tellink baru berupa CSTA bersyarat — bagian tunai 20%-nya (~Rp448,3 miliar) bahkan direncanakan dari dana hasil rights issue, bukan kas perseroan (kas per Jun 2026 hanya Rp6,1 miliar; disorot BEI lewat surat S-13167/BEI.PP3/10-2026). Rekam jejak pembeli perlu dicatat: Saiko sebelumnya <strong>membatalkan rencana akuisisi SPRE pada 29 Jan 2026</strong> (saham SPRE −78% setelahnya), lalu beralih ke NAYZ.
+                <p class="srcs">Sumber verifikasi: <a href="https://stockbit.com/post/36534101" target="_blank" rel="noopener">Stockbit</a> <a href="https://id.tradingview.com/news/kontan:43ae6a8db87ea:0/" target="_blank" rel="noopener">Kontan (MTO)</a> <a href="https://ajaib.co.id/belajar/analisa-fundamental-saham/kdtn-gagal-diakuisisi-begini-deretan-nasib-saham-yang-batal-diakuisisi" target="_blank" rel="noopener">Ajaib (SPRE)</a></p>
+              </div>
+              <p class="srcs">Sumber:
+                <a href="https://www.bloombergtechnoz.com/detail-news/123666/saham-pepet-gocap-nayz-banting-setir-usai-disuntik-rp2-t" target="_blank" rel="noopener">Bloomberg Technoz</a>
+                <a href="https://www.topbusiness.id/138694/nayz-klarifikasi-ke-bei-rencana-beralih-dari-bisnis-makanan-bayi-ke-telekomunikasi-tetap-berlanjut.html" target="_blank" rel="noopener">TopBusiness</a>
+                <a href="https://web.ksei.co.id/Announcement/Files/200256_ksei_24916_jku_1026_202610021638.pdf" target="_blank" rel="noopener">Pengumuman tender wajib (KSEI)</a>
+              </p>
+            </div>
+            <div class="chart-box">
+              <div id="nayz-chart"></div>
+              <p class="cap">Penutupan mingguan NAYZ, Nov 2025 – Nov 2026. Harga sempat menyentuh tertinggi 52 minggu Rp126 (12 Okt 2026) dan terendah Rp45 (25 Mei 2026); penutupan terakhir pada data di atas Rp90 (minggu 16 Nov), sebelum ditutup Rp99 pada 23 Nov 2026.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section aria-labelledby="semua">
+        <h2 id="semua">Semua kandidat hasil screening</h2>
+        <p class="sec-sub">Kategori A = sudah ada kabar akuisisi nyata (pengendali berganti atau perjanjian ditandatangani pada 2025–2026). “Nyata” di sini berarti ada pengumuman atau perjanjian resmi — <strong>bukan</strong> berarti seluruh transaksinya sudah tuntas; tahap dan syarat yang masih menggantung pada tiap emiten tertulis di kartunya masing-masing. Kategori B = baru rumor, negosiasi, atau cocok pola saja — perlakukan sebagai spekulasi. Skor adalah penilaian kualitatif atas lima kriteria di atas. Setiap kartu juga memuat <strong>label status verifikasi</strong> dari riset verifikasi dokumen (24 Nov 2026) — pola dan bukti adalah dua hal berbeda, seperti terlihat pada DPUM: negosiasinya dulu tampak menggantung, tetapi verifikasi menemukan closing-nya sudah terjadi.</p>
+        <div class="controls">
+          <div class="chips" role="group" aria-label="Saring kategori">
+            <button class="chip" type="button" data-filter="all" aria-pressed="true">Semua</button>
+            <button class="chip" type="button" data-filter="A" aria-pressed="false">Kategori A — kabar nyata</button>
+            <button class="chip" type="button" data-filter="B" aria-pressed="false">Kategori B — rumor / pola</button>
+            <button class="chip" type="button" data-filter="X" aria-pressed="false">Bukan kandidat</button>
+          </div>
+          <label for="sort">Urutkan
+            <select id="sort">
+              <option value="score">Skor kemiripan tertinggi</option>
+              <option value="mcap-desc">Market cap terbesar</option>
+              <option value="mcap-asc">Market cap terkecil</option>
+              <option value="price-desc">Harga saham tertinggi</option>
+            </select>
+          </label>
+        </div>
+        <div class="controls" style="margin-top:-6px">
+          <span class="vchips-label" id="vfilter-label">Status verifikasi:</span>
+          <div class="chips" role="group" aria-labelledby="vfilter-label">
+            <button class="chip vchip" type="button" data-vfilter="all" aria-pressed="true">Semua status</button>
+            <button class="chip vchip" type="button" data-vfilter="1" aria-pressed="false">Terbukti dokumen</button>
+            <button class="chip vchip" type="button" data-vfilter="2" aria-pressed="false">Berjalan, belum selesai</button>
+            <button class="chip vchip" type="button" data-vfilter="3" aria-pressed="false">Belum terbukti / rumor</button>
+          </div>
+        </div>
+        <p class="count-line" id="count-line"></p>
+        <div class="cards" id="cards"></div>
+        <p class="fineprint">Market cap adalah <strong>estimasi perhitungan sendiri</strong> = harga terakhir 23 November 2026 × jumlah saham beredar yang diturunkan dari persentase kepemilikan yang diungkap di berita/keterbukaan — bukan angka resmi BEI. Bila jumlah saham tidak ditemukan, market cap dinyatakan tidak dihitung. Grafik mini: penutupan mingguan ±1 tahun hingga minggu 16 Nov 2026.</p>
+      </section>
+
+      <section aria-labelledby="grafik">
+        <h2 id="grafik">Perbandingan kapitalisasi pasar</h2>
+        <p class="sec-sub">Seberapa kecil cangkang-cangkang ini? Skala logaritmik — tanpa itu, batang VISI (~Rp1,66 T) akan membuat kandidat mikro seperti KRYA (~Rp68 M) tak terlihat. INPS dan DPUM tidak tampil karena market cap-nya tidak dihitung (data tidak cukup).</p>
+        <div class="chart-panel"><div id="mcap-chart"></div></div>
+      </section>
+
+      <section aria-labelledby="bukan">
+        <h2 id="bukan">Jangan salah baca: dua nama yang sering keliru dikira kandidat</h2>
+        <div class="duo">
+          <article class="note-card">
+            <span class="tk">PACK</span> <span class="badge done">Sudah terjadi</span>
+            <p><strong>PT Abadi Nusantara Hijau Investama Tbk</strong> — transformasi CNGR-nya sudah terjadi sejak akhir 2024: Eco Energi Perkasa/CNGR memegang 40,56%, Haji Isam masuk 21,12% (Rp936,65 miliar, Mei 2026), dan rights issue ~Rp8,19 triliun berjalan Oktober 2026. Market cap-nya kini ~Rp11 triliun (harga Rp340, 23 Nov 2026). Ini <strong>acuan pola yang sudah selesai</strong>, bukan target berikutnya.</p>
+            <p class="srcs">Sumber: <a href="https://www.bloombergtechnoz.com/detail-news/127451/antara-haji-isam-eramet-di-tengahnya-ada-pack/2" target="_blank" rel="noopener">Bloomberg Technoz</a> · <a href="https://investortrust.id/market/103249/haji-isam-akuisisi-abadi-nusantara-hijau-pack-gelontorkan-rp-936-65-miliar" target="_blank" rel="noopener">InvestorTrust</a></p>
+          </article>
+          <article class="note-card">
+            <span class="tk">DOOH</span> <span class="badge done">Pihak pengakuisisi</span>
+            <p><strong>PT Era Media Sejahtera Tbk</strong> (akan jadi PT Nexora Energy Infrastructure Tbk) — DOOH <strong>bukan target backdoor</strong>; ia adalah pihak yang melakukan akuisisi: RUPSLB 9 November 2026 menyetujui akuisisi 29,88% saham INET senilai Rp2,0055 triliun, pinjaman pengendali maks Rp5 triliun, dan rights issue maks 154,78 miliar saham, plus rencana pusat data AI 1,6 GW dan PLTS 2 GW. Market cap-nya tidak dihitung karena jumlah saham beredar tidak ditemukan (harga Rp216, 23 Nov 2026).</p>
+            <p class="srcs">Sumber: <a href="https://investor.id/market/461329/dooh-ganti-nama-jadi-nexora-siap-ekspansi-dan-ada-aksi-korporasi" target="_blank" rel="noopener">Investor.id</a></p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="risiko">
+        <h2 id="risiko">Risiko: kenapa screening ini bisa meleset jauh</h2>
+        <div class="kdtn">
+          <h3>Pelajaran gagal — KDTN: CSPA pun bisa batal</h3>
+          <p>Ruby Mining (Hong Kong, afiliasi Huayou) menandatangani CSPA pada 22 April 2026 untuk 86% saham PT Puri Sentul Permai Tbk (KDTN), target rampung Q3-2026, bahkan sempat beredar wacana rights issue ~Rp181 triliun. Pada <strong>5 November 2026 para pihak sepakat mengakhiri CSPA</strong>. Saham KDTN anjlok 71% dalam sebulan dan 6× auto-reject bawah. Pelajarannya: perjanjian bersyarat ≠ akuisisi selesai.</p>
+          <p style="margin-top:10px"><strong>Kronologi lengkapnya (riset verifikasi):</strong> negosiasi Ruby Mining diumumkan 21 Nov 2025 untuk 86% saham; CSPA diteken 22 Apr 2026 atas 1,075 miliar saham (86%) dari CSIS, Putrasakti Mandiri, dan Intan Perdana Sukses; sempat disebut ditunda pada 8 Okt 2026; terminasi disepakati 5 Nov 2026 dan diumumkan 6 Nov 2026 — kuasa direktur Ruby Mining menyatakan “rencana pengambilalihan diakhiri dan tidak dilanjutkan”. Sahamnya Rp238 pada 6 Nov 2026 (−6,3% hari itu) dan −71% dalam rentang 6 Okt–12 Nov 2026. Konteks di belakangnya: Huafei Nickel-Cobalt (anak usaha Huayou) menghentikan 50% kapasitas produksi nikel MHP dari smelter HPAL sejak Mei 2026. KDTN pun kembali ke bisnis perhotelan (6 hotel).</p>
+          <p style="margin-top:10px"><strong>Bukan kasus tunggal.</strong> Preseden pembatalan serupa: <strong>SPRE −78%</strong> setelah Saiko membatalkan akuisisinya pada 29 Jan 2026 (Saiko yang sama kemudian menjadi pengendali NAYZ), <strong>ASPI −77%</strong>, dan <strong>IOTF −66%</strong>. Setiap kali polanya sama: harga terbang lebih dulu di atas cerita, lalu jatuh saat dokumennya batal.</p>
+          <p class="srcs">Sumber: <a href="https://www.topik.id/csis-batalkan-rencana-akuisisi-pt-puri-sentul-permai-tbk-kdtn-oleh-ruby-mining" target="_blank" rel="noopener">Topik.id</a> · <a href="https://ajaib.co.id/belajar/analisa-fundamental-saham/kdtn-gagal-diakuisisi-begini-deretan-nasib-saham-yang-batal-diakuisisi" target="_blank" rel="noopener">Ajaib (preseden batal)</a> · <a href="https://www.rctiplus.com/news/detail/ekonomi/5510543/ruby-mining-batal-akuisisi-puri-sentul--kdtn-" target="_blank" rel="noopener">IDX Channel</a> · <a href="https://www.mikirduit.com/kdtn-batal-diakuisisi-setelah-huayou-pangkas-produksi-nikel-di-indonesia-begini-prospek-harga-sahamnya/" target="_blank" rel="noopener">Mikirduit</a></p>
+        </div>
+        <div class="risk-list">
+          <div class="risk"><strong>Tidak ada jaminan</strong><p>Yang paling sering terjadi: akuisisi diumumkan, harga sudah naik duluan, lalu transaksi batal atau aset yang dijanjikan tidak kunjung masuk.</p></div>
+          <div class="risk"><strong>Rumor bisa dibantah resmi</strong><p>UDNG (Januari 2026) dan GZCO (Oktober 2025) sama-sama dibantah manajemen secara resmi ke BEI setelah harga bergerak. Rumor yang membawa nama besar justru paling sering jadi bahan spekulasi.</p></div>
+          <div class="risk"><strong>Harga sering sudah naik duluan</strong><p>IDEA +429% dalam setahun (Rp73 → Rp396); BLUE ~+1.900% dalam setahun (per Feb 2026); AMMS +924% sejak awal 2025 sebelum jatuh ke Rp90; UDNG −93,6% dalam setahun setelah euforia. Masuk setelah reli = membeli skenario sukses yang sudah dihargai pasar.</p></div>
+          <div class="risk"><strong>Dilusi dari rights issue jumbo</strong><p>Inti pola PANI adalah rights issue raksasa. Pemegang lama yang tidak menebus HMETD terdilusi besar: LAPD dilusi maks 33,33%; free float INPS diperkirakan jatuh ke ~11,68%; NAYZ harus menghimpun ~Rp448 miliar tunai padahal kasnya Rp6,1 miliar.</p></div>
+          <div class="risk"><strong>Valuasi aset inbreng kurang transparan</strong><p>Aset yang dimasukkan (Bangkok Tellink, BSS, MTM, geothermal, tambang) memang dinilai penilai independen, tetapi analis Kiwoom yang dikutip Bloomberg Technoz mengingatkan investor publik menghadapi “valuasi aset baru yang kadang kurang transparan”. Komentator pasar bahkan menyorot laba tahunan Bangkok Tellink ~US$0,63 juta vs valuasi US$166,7 juta — angka komentator, bukan angka resmi, perlu verifikasi prospektus.</p></div>
+          <div class="risk"><strong>Pengendali baru belum teruji</strong><p>Saiko Consultancy didirikan Januari 2026; Dragonmine Mining Agustus 2025; Radiant Ruby dan Triple Berkah juga bukan konglomerat mapan. Jejak rekam dan sumber dananya jauh lebih sulit diverifikasi daripada Salim/CT Corp.</p></div>
+          <div class="risk"><strong>Regulasi &amp; likuiditas</strong><p>BEI/OJK mengawasi lewat UMA dan suspensi (TGUK, SOFA, DPUM pernah disuspensi), aturan free float minimum, dan kewajiban tender wajib. Saham cangkang umumnya tidak likuid — sulit keluar saat sentimen berbalik.</p></div>
+          <div class="risk"><strong>“Sudah selesai” ≠ “berikutnya”</strong><p>Sebagian besar Kategori A sudah berpindah pengendali pada 2025. Taruhan pada mereka bukan lagi soal akuisisi, melainkan apakah injeksi aset/rights issue benar-benar terealisasi dan menghasilkan kinerja — dua hal yang berbeda.</p></div>
+        </div>
+        <p class="fineprint" style="margin-top:16px"><strong>Yang paling layak dipantau kelanjutannya:</strong> NAYZ (RUPS independen + prospektus rights issue Bangkok Tellink), BLUE (konfirmasi penyelesaian CSPA dan rencana rights issue/tambang), dan LAPD (pelaksanaan rights issue 13–20 Januari 2027). UDNG hanya layak dipantau sebagai rumor — cek keterbukaan Indosat/UDNG, bukan kabar burung.</p>
+      </section>
+
+      <section aria-labelledby="terbuka">
+        <h2 id="terbuka">Yang belum bisa dipastikan</h2>
+        <p class="sec-sub">Pertanyaan terbuka dari riset ini — dicantumkan apa adanya agar tidak terbaca sebagai fakta:</p>
+        <div class="panel">
+          <ul>
+            <li><strong>BLUE:</strong> harga akuisisi per saham dalam CSPA 80% tidak ditemukan; status penyelesaian definitif setelah target rampung Q2-2026 juga belum terkonfirmasi — perlu cek keterbukaan terbaru.</li>
+            <li><strong>SOFA:</strong> besaran rights issue-nya tidak dikutip karena sumber berbeda-beda (situs resmi menyebut rights issue disetujui RUPS Mei 2026; angka 50 miliar saham hanya berasal dari konten media sosial).</li>
+            <li><strong>INPS &amp; DOOH:</strong> market cap tidak dihitung — data harga INPS berhenti 17 September 2026 (Rp1.065) dan jumlah saham DOOH tidak ditemukan.</li>
+            <li><strong>DPUM:</strong> riset verifikasi menemukan kelanjutan yang tidak tertangkap screening awal — closing 59,24% oleh Rama Indonesia benar-benar terjadi pada 8 Mei 2026 (@Rp88 = Rp217,65 miliar). Yang kini belum terverifikasi adalah hasil akhir MTO yang dijadwalkan ulang (periode 24 Sep–23 Okt 2026, pembayaran 9 Nov 2026): berapa saham yang ditenderkan dan apakah pembayaran terealisasi.</li>
+            <li><strong>NAYZ:</strong> hasil MTO Saiko (berapa saham yang ditenderkan; pembayaran 10 Nov 2026) belum terverifikasi; belum ada tanggal RUPS independen maupun prospektus rights issue inbreng Bangkok Tellink.</li>
+            <li><strong>EPAC:</strong> harga dan periode MTO Triple Berkah tidak ditemukan (hasil pencarian yang muncul adalah MTO untuk MEJA @Rp66 — emiten berbeda); selisih kepemilikan Triple B 34,56% vs 38,84% juga tidak dijelaskan sumber.</li>
+            <li><strong>KRYA:</strong> pelaksanaan rights issue Rp200–300 miliar belum terverifikasi, begitu juga penyebab kepemilikan Green City SG yang tampil turun dari 41% (Des 2025) menjadi 22,7% pada data terbaru.</li>
+            <li><strong>IDEA:</strong> harga dan periode MTO Nawasena belum ditemukan.</li>
+            <li><strong>INPS:</strong> kepemilikan GIGP bertentangan antar sumber — 87,48% pasca-MTO (dokumen IDX, Jul 2026) vs 65,86% sebelum private placement (artikel Nov 2026) — penjelasannya tidak ditemukan; akuisisi Tri Satria Indah Motor (6 Okt 2026) juga belum terverifikasi dari dokumen IDX.</li>
+            <li><strong>VISI:</strong> harga MTO Rp277 hanya bersumber dari ulasan/video yang merujuk KSEI, belum terverifikasi dari dokumen IDX langsung; klaim soal penilaian MSCI atas “information flow” Indonesia juga hanya dari sumber sekunder.</li>
+            <li><strong>FUTR:</strong> apakah suspensi BEI sejak 26 Sep 2025 sudah dicabut tidak terverifikasi — berita terakhir yang dikutip masih menyebut sahamnya disuspensi.</li>
+            <li><strong>UDNG:</strong> kelanjutan rumor FiberCo setelah Januari 2026 tidak ditemukan; ada komentar pasar (Oktober 2026) bahwa aset fiber dialihkan ke PT IFT/PT NFT — belum terverifikasi dari sumber primer.</li>
+            <li><strong>EPAC:</strong> penjelasan soal RTO berasal dari laporan AI Indopremier atas dokumen IDX — verifikasi dokumen IDX aslinya sebelum dijadikan pegangan.</li>
+            <li><strong>KRYA:</strong> angka kepemilikan pengendali berbeda antar sumber (41% Green City SG yang sudah tuntas vs 62% dalam rencana konsorsium Rich Step); market cap-nya perkiraan kasar.</li>
+            <li><strong>BOGA</strong> (PT Apollo Global Interactive Tbk) disebut dalam satu artikel Kontan sebagai emiten yang diakuisisi, tetapi detailnya tidak ditelusuri dalam riset ini.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="sumber">
+        <h2 id="sumber">Metode &amp; sumber</h2>
+        <div class="panel">
+          <p style="margin-top:0">Screening ini menilai tiap emiten terhadap lima kriteria pola PANI/ARTO/BBHI/DNET/BBYB. Skor kemiripan adalah penilaian kualitatif, bukan model kuantitatif. Harga saham adalah harga terakhir 23 November 2026; grafik memakai penutupan mingguan dari data pasar yang sama. Market cap adalah estimasi perhitungan sendiri (lihat catatan di bagian kandidat) — bukan angka resmi BEI.</p>
+          <p>Lapisan verifikasi (riset terpisah, 24 November 2026) memeriksa bukti dokumen tiap emiten — CSPA/PJBS, closing pengendali, MTO menurut POJK 9/2018, RUPSLB, bukti pembayaran, kronologi harga, bantahan manajemen, dan riwayat UMA/suspensi — lalu mengklasifikasikannya ke tiga status. Harga pasar yang dikutip riset verifikasi adalah harga yang dilaporkan media pada tanggal yang disebut, bukan harga live dari data feed, kecuali NAYZ Rp99 pada 23 Nov 2026.</p>
+          <h3>Sumber utama</h3>
+          <ul class="src-list">
+            <li><a href="https://www.bloombergtechnoz.com/detail-news/119671/semarak-saham-backdoor-listing-saat-bursa-ipo-penuh-tantangan/2" target="_blank" rel="noopener">Bloomberg Technoz — Semarak Saham Backdoor Listing (27 Agu 2026)</a></li>
+            <li><a href="https://www.bloombergtechnoz.com/detail-news/123666/saham-pepet-gocap-nayz-banting-setir-usai-disuntik-rp2-t" target="_blank" rel="noopener">Bloomberg Technoz — NAYZ banting setir usai disuntik Rp2 T</a></li>
+            <li><a href="https://investortrust.id/market/95345/dragonmine-akuisisi-80-saham-berkah-prima-blue-arah-bisnis-bakal-berubah" target="_blank" rel="noopener">InvestorTrust — Dragonmine akuisisi 80% BLUE (23 Feb 2026)</a></li>
+            <li><a href="https://www.rctiplus.com/news/detail/idxchannel/5512078/rights-issue-rp59-5-miliar--leyand--lapd--bakal-kuasai-kontraktor-tambang-bss" target="_blank" rel="noopener">IDXChannel — Rights issue LAPD &amp; kontraktor tambang BSS</a></li>
+            <li><a href="https://www.industry.co.id/read/158649/epac-dapat-restu-rights-issue-modal-dasar-naik-jadi-rp66068-miliar" target="_blank" rel="noopener">Industry.co.id — EPAC dapat restu rights issue (6 Nov 2026)</a></li>
+            <li><a href="https://www.iqplus.info/news/stock_news/udng-respons-rumor-caplok-hashim-northstar--manajemen-udng-buka-suara,01957712.html" target="_blank" rel="noopener">IQPlus — Manajemen UDNG buka suara soal rumor (20 Jan 2026)</a></li>
+            <li><a href="https://www.indopremier.com/module/newsDetail.php?news_id=483373&group_news=RESEARCHNEWS" target="_blank" rel="noopener">CNBC Indonesia via Indopremier — Rumor caplok UDNG (19 Jan 2026)</a></li>
+            <li><a href="https://investor.id/market/460825/gebrakan-baru-emiten-portofolio-andry-hakim" target="_blank" rel="noopener">Investor.id — Private placement INPS (4 Nov 2026)</a></li>
+            <li><a href="https://investortrust.id/market/122390/nawasena-resmi-kuasai-66-58-saham-idea-rogoh-kocek-rp-38-miliar" target="_blank" rel="noopener">InvestorTrust — Nawasena kuasai 66,58% IDEA (12 Nov 2026)</a></li>
+            <li><a href="https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202602/46ba922050_b75dd4d03a.pdf" target="_blank" rel="noopener">IDX — Keterbukaan tender wajib AMMS (2 Feb 2026)</a></li>
+            <li><a href="https://idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202601/f58a8b8099_eddb13d833.pdf" target="_blank" rel="noopener">IDX — Pengumuman negosiasi pengambilalihan DPUM (22 Jan 2026)</a></li>
+            <li><a href="https://www.receh.in/2026/10/saham-taxi-rp12-dan-free-float-939.html" target="_blank" rel="noopener">Receh.in — TAXI Rp12 dan free float 93,9% (Okt 2026)</a></li>
+          </ul>
+          <h3>Sumber verifikasi (dokumen IDX &amp; klarifikasi resmi)</h3>
+          <ul class="src-list">
+            <li><a href="https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202605/729ef7bc77_8ee8f6b4dc.pdf" target="_blank" rel="noopener">IDX — PJBS EPAC / Triple Berkah (29 Mei 2026)</a></li>
+            <li><a href="https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202508/a27141c4a6_84946ad047.pdf" target="_blank" rel="noopener">IDX — Term Sheet FUTR / Ardhantara (15 Agu 2025)</a></li>
+            <li><a href="https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202512/2cd4d58087_120d4d15e4.pdf" target="_blank" rel="noopener">IDX — MTO FUTR (16 Des 2025)</a></li>
+            <li><a href="https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202606/f40d4cc077_53928c0ef4.pdf" target="_blank" rel="noopener">IDX — MTO INPS / GIGP (17 Jun 2026)</a></li>
+            <li><a href="https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202507/8083fe5a05_7031250c9f.pdf" target="_blank" rel="noopener">IDX — Konfirmasi due diligence KRYA (28 Jul 2025)</a></li>
+            <li><a href="https://www.epack.co.id/s/Pengumuman-Negosiasi-Pengambilalihan-EPAC-24042026.pdf" target="_blank" rel="noopener">EPAC — Pengumuman negosiasi pengambilalihan (24 Apr 2026)</a></li>
+            <li><a href="https://www.fortuneidn.com/market/ada-isu-akuisisi-oleh-konsorsium-hashim-hingga-aguan-udng-klarifikasi-00-3dhnm-krhrb2" target="_blank" rel="noopener">Fortune IDN — Klarifikasi UDNG atas rumor akuisisi (20 Jan 2026)</a></li>
+            <li><a href="https://cdn.financialreports.eu/financialreports/media/filings/69283/2026/RNS/69283_rns_2026-06-10_e394cb2b-55f6-4f8c-ab0d-bf67a5ae686c.pdf" target="_blank" rel="noopener">GZCO — Klarifikasi volatilitas (Jun 2026)</a></li>
+            <li><a href="https://investortrust.id/market/116109/rama-indonesia-resmi-jadi-pengendali-baru-dua-putra-dpum-berikut-fokus-pengembangannya" target="_blank" rel="noopener">InvestorTrust — Rama Indonesia resmi jadi pengendali DPUM</a></li>
+            <li><a href="https://investor.id/market/461867/perusahaan-raffi-ahmad-akuisisi-rumah-sakit" target="_blank" rel="noopener">Investor.id — VISI akuisisi rumah sakit Hasna Medika</a></li>
+            <li><a href="https://ajaib.co.id/belajar/analisa-fundamental-saham/kdtn-gagal-diakuisisi-begini-deretan-nasib-saham-yang-batal-diakuisisi" target="_blank" rel="noopener">Ajaib — KDTN gagal diakuisisi &amp; preseden saham batal akuisisi</a></li>
+            <li><a href="https://snips.stockbit.com/snips-terbaru/-bi-rate-ditahan-di-level-475-sejalan-ekspektasi" target="_blank" rel="noopener">Stockbit Snips — Klarifikasi BLUE: negosiasi masih berlangsung (Okt 2026)</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <footer>
+        <p>Halaman ini merangkum riset screening per 23–24 November 2026. Keadaan bisa berubah setiap ada keterbukaan informasi baru — anggap angka dan status di sini sebagai potret tanggal tersebut, bukan data live.</p>
+        <p>Ini bukan rekomendasi beli/jual. Keputusan investasi sepenuhnya tanggung jawab masing-masing, idealnya setelah membaca prospektus dan keterbukaan resmi di IDX.</p>
+      </footer>
+    </div>
+    <script>
+      "use strict";
+      var WEEKLY = {
+        NAYZ: [103,80,63,72,64,64,57,56,64,70,77,86,87,75,69,66,67,69,65,61,69,84,71,65,63,49,51,66,55,67,61,56,59,56,60,60,58,58,75,70,74,73,75,69,73,115,75,79,72,51,58,90],
+        BLUE: [3460,2980,3030,3780,3170,2900,2900,3200,5775,6050,6400,6425,6425,4630,3990,3500,3500,3180,3100,3460,3270,3230,3360,3020,2900,2950,3320,3000,3290,3090,2960,2990,2830,2900,2930,2430,2470,2380,2780,2750,3270,2980,2990,2940,3350,4010,2780,2990,2190,1535,1865,1950],
+        LAPD: [194,256,208,191,159,175,170,155,149,119,93,129,117,109,97,86,92,80,73,79,83,75,94,84,83,74,68,57,61,63,55,58,65,68,65,62,66,64,67,70,71,69,82,76,72,73,60,62,51,36,42,40],
+        EPAC: [23,30,31,33,32,40,38,41,40,36,40,46,43,46,46,36,42,39,50,55,66,76,79,80,76,68,71,53,55,68,73,73,73,68,61,62,59,59,59,55,55,55,50,50,45,53,42,47,45,44,45,45],
+        SOFA: [244,270,340,468,438,438,360,408,426,382,404,482,458,525,580,476,486,452,418,454,488,460,402,376,376,338,400,264,252,228,206,208,234,222,220,214,248,252,350,364,316,344,350,304,262,212,172,195,132,126,153,160],
+        KRYA: [184,186,187,206,170,170,159,155,124,98,85,90,90,88,69,60,59,62,55,56,81,74,73,76,77,61,62,55,59,60,54,54,59,61,58,59,64,64,65,70,67,67,65,53,47,54,41,50,43,40,43,42],
+        FUTR: [705,625,680,620,710,665,635,655,515,410,324,388,370,320,254,216,220,224,220,268,264,224,226,224,220,183,179,117,156,161,179,220,220,226,302,280,350,336,346,360,318,294,254,268,250,252,181,167,120,105,128,113],
+        AMMS: [492,530,484,408,428,418,382,505,505,510,410,438,432,432,454,416,398,404,402,400,430,404,392,380,394,366,376,336,328,342,326,316,306,300,300,260,212,172,171,246,206,224,218,206,208,210,144,104,94,87,94,90],
+        IDEA: [72,65,73,85,80,90,107,96,97,145,121,105,151,155,134,126,130,123,102,75,66,96,80,78,76,72,59,66,51,64,62,58,57,63,64,62,62,68,63,62,60,62,78,123,148,214,220,234,214,197,242,386],
+        INPS: [112,120,176,154,180,170,125,133,178,167,152,182,172,179,195,308,370,605,460,334,386,424,675,725,635,625,680,565,500,520,675,660,730,610,640,750,630,700,660,575,635,590,625,650,665,730,725,670,700,710,810,1065],
+        VISI: [204,204,218,224,222,216,199,190,187,575,690,900,680,595,520,550,560,605,575,575,740,775,790,810,840,760,745,1030,1180,1050,875,950,970,880,895,860,945,950,925,990,965,1035,1215,1390,1050,1090,735,755,635,595,560,550],
+        UDNG: [4350,3350,3770,4450,3940,3950,4300,5000,3600,2790,2050,3270,3420,2790,2150,1280,1285,1100,830,750,825,1310,915,1200,1150,1230,1310,1170,1400,1875,1250,1410,1260,1270,1170,1070,1375,1300,1345,1585,975,595,490,500,376,510,432,382,250,228,204,204],
+        TAXI: [18,17,16,18,23,19,18,20,25,22,18,22,21,20,16,13,15,16,15,16,18,16,17,16,17,14,16,13,14,14,12,13,12,12,13,14,14,15,14,13,13,15,14,14,14,15,12,12,11,10,10,10]
+      };
+      // DPUM & GZCO tidak punya seri harga di data riset — tanpa grafik.
+
+      var CANDIDATES = [
+        {
+          tk: "BLUE", name: "PT Berkah Prima Perkasa Tbk (Blueprint)", cat: "A",
+          badge: "CSPA ditandatangani", badgeCls: "a",
+          mcap: 817, mcapTxt: "~Rp817 M", price: 1955, priceTxt: "Rp1.955", chg: "+0,26%",
+          score: 4, scoreTxt: "4/5",
+          status: "CSPA 80% (Feb 2026) · target rampung Q2-2026",
+          verif: { tier: 2, label: "Verifikasi: berjalan tapi belum selesai — risiko batal tinggi", txt: "CSPA 80% ditandatangani 18 Feb 2026, tetapi closing-nya belum terverifikasi: target rampung Q2-2026 sudah lewat, dan klarifikasi BLUE ke BEI pada Okt 2026 menyebut negosiasi masih berlangsung dan belum ada kesepakatan final yang mengikat. Harga per saham CSPA tidak diungkap; belum ada jadwal MTO. Saham sempat disuspensi 6 Nov 2025 dan sudah naik ~1.900% dalam setahun di sekitar pengumuman — pola yang identik dengan KDTN (SPV Huayou yang lain).", srcs: [["Stockbit Snips (klarifikasi Okt 2026)", "https://snips.stockbit.com/snips-terbaru/-bi-rate-ditahan-di-level-475-sejalan-ekspektasi"]] },
+          who: "Dragonmine Mining (Hong Kong) — anak usaha Zhejiang Huayou Cobalt, raksasa material baterai Tiongkok",
+          signal: "CSPA 18 Februari 2026 untuk 334,4 juta saham (80%). Pasca-akuisisi, BLUE direncanakan menjadi perusahaan induk jasa eksplorasi pertambangan tahap awal, lalu mengakuisisi dan mengoperasikan tambang di Indonesia. Sahamnya naik ~1.900% dalam setahun terakhir (per Feb 2026).",
+          minus: "Belum ditemukan pengumuman rights issue jumbo; harga akuisisi per saham tidak ditemukan; penyelesaian definitif pasca-Q2-2026 belum terkonfirmasi; dan pola Huayou yang sama gagal di KDTN.",
+          srcs: [["InvestorTrust", "https://investortrust.id/market/95345/dragonmine-akuisisi-80-saham-berkah-prima-blue-arah-bisnis-bakal-berubah"], ["Indopremier", "https://www.indopremier.com/module/newsDetail.php?jdl=Akuisisi_Tuntas_Kuartal_II_2026__BLUE_Bakal_Jadi_Induk_Usaha_Jasa_Eksplorasi_Tambang&news_id=485227&group_news=RESEARCHNEWS&taging_subtype=BLUE&name=&search=y_general&q=Berkah Prima Perkasa&halaman=1"]]
+        },
+        {
+          tk: "LAPD", name: "PT Leyand International Tbk → PT JSI Sinergi Internasional Tbk", cat: "A",
+          badge: "Pengendali baru + rights issue", badgeCls: "a",
+          mcap: 163, mcapTxt: "~Rp163 M", price: 41, priceTxt: "Rp41", chg: "+2,50%",
+          score: 4, scoreTxt: "4/5",
+          status: "Pengendali 51% · rights issue inbreng disetujui RUPSLB",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen", txt: "JSI closing 51% @Rp10 = Rp20,23 miliar pada 10 Nov 2025; MTO @Rp51 berjalan 28 Feb–29 Mar 2026 (pembayaran 10 Apr 2026). Inbreng BSS-nya berjalan: RUPSLB 29 Okt 2026 menyetujui rights issue untuk 87,5% BSS senilai Rp38,85 miliar, dengan perkiraan efektif OJK 28 Des 2026. Catatan keras: sahamnya +1.600% sebelum pengumuman pengendali baru dan berada di Papan Pemantauan Khusus (FCA) sejak Sep 2025.", srcs: [["Indopremier (closing)", "https://www.indopremier.com/module/newsDetail.php?jdl=JSI_Sinergi_Mas_Resmi_Jadi_Pengendali_Baru__Saham_Leyand_(LAPD)_Rebound&news_id=479324&group_news=RESEARCHNEWS&taging_subtype=LAPD&name=&search=y_general&q=Leyand International&halaman=1"], ["IQPlus (RUPSLB)", "https://www.iqplus.info/news/stock_news/lapd-rupslb-lapd-setujui-right-issue-dan-susunan-pengurus,30641359.html"]] },
+          who: "PT JSI Sinergi Mas — ditetapkan sebagai pengendali (51%) dalam RUPSLB 29 Oktober 2026",
+          signal: "RUPSLB yang sama menyetujui ganti nama dan rights issue maks 2 miliar saham @Rp30 (~Rp59,5 miliar, dilusi maks 33,33%). JSI melaksanakan haknya (~Rp30,3 miliar) secara inbreng berupa 87,5% saham PT Bersaudara Sinergi Sejahtera (BSS), kontraktor tambang batu bara di Kalimantan — plus menjadi standby buyer. Cum rights 8 Januari 2027, pelaksanaan 13–20 Januari 2027. Ekuitas LAPD per Juni 2026 negatif Rp2,65 miliar: cangkang yang “diperbaiki” lewat inbreng, seperti pola PANI.",
+          minus: "Nilai transaksinya kecil (Rp59,5 miliar, bukan jumbo triliunan) dan JSI bukan konglomerat raksasa yang dikenal publik.",
+          srcs: [["IDXChannel", "https://www.rctiplus.com/news/detail/idxchannel/5512078/rights-issue-rp59-5-miliar--leyand--lapd--bakal-kuasai-kontraktor-tambang-bss"], ["Periskop", "https://periskop.id/bisnis/20261103/leyand-international-lapd-rups-ganti-nama-jsi-sinergi-internasional"]]
+        },
+        {
+          tk: "EPAC", name: "PT Megalestari Epack Sentosaraya Tbk", cat: "A",
+          badge: "RTO eksplisit", badgeCls: "a",
+          mcap: 145, mcapTxt: "~Rp145 M", price: 44, priceTxt: "Rp44", chg: "−2,22%",
+          score: 4, scoreTxt: "4/5",
+          status: "Akuisisi 34,56% selesai · RTO + rights issue 2 M saham disetujui",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen (RTO berjalan)", txt: "PJBS ditandatangani 25 Mei 2026; closing dua tahap selesai — 24 Jun 2026 (541.666.667 saham) dan 23 Jul 2026 (600.004.433 saham) @Rp12. RTO ke MTM masih tahap due diligence/valuasi: struktur, nilai transaksi, dan rasio pertukarannya belum ditentukan — jadi RTO adalah rencana yang diumumkan resmi, bukan transaksi yang sudah terjadi. Harga dan periode MTO EPAC tidak ditemukan (jangan tertukar dengan MTO MEJA @Rp66). Ada selisih kepemilikan Triple B yang belum dijelaskan antar sumber: 34,56% vs 38,84%.", srcs: [["Dokumen PJBS (IDX)", "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202605/729ef7bc77_8ee8f6b4dc.pdf"], ["Pengumuman negosiasi EPAC", "https://www.epack.co.id/s/Pengumuman-Negosiasi-Pengambilalihan-EPAC-24042026.pdf"]] },
+          who: "PT Triple Berkah Bersama — pengendali baru sejak 23 Juli 2026",
+          signal: "Triple Berkah mengambil alih 1.141.671.100 saham (34,56%) @Rp12 = hanya Rp13,70 miliar. Dalam jawaban atas permintaan penjelasan BEI, perseroan menyebut PT Sirkah Akselerasi Jaya sebagai mitra konsorsium untuk Reverse Take Over (RTO) melalui share swap, dengan PT Media Telekomunikasi Mandiri direncanakan menjadi anak usaha — istilah RTO dipakai eksplisit oleh emiten sendiri. RUPSLB 3 November 2026 menyetujui rights issue maks 2 miliar saham dan penghentian segmen kemasan fleksibel konvensional.",
+          minus: "Profil Triple Berkah/SAJ/MTM belum menunjukkan ekosistem raksasa; penjelasan RTO berasal dari laporan AI Indopremier atas dokumen IDX — perlu verifikasi dokumen aslinya.",
+          srcs: [["IQPlus", "https://www.iqplus.info/news/stock_news/epac-triple-berkah-bersama-resmi-caplok-34-56--saham-epac,20352560.html"], ["Industry.co.id", "https://www.industry.co.id/read/158649/epac-dapat-restu-rights-issue-modal-dasar-naik-jadi-rp66068-miliar"]]
+        },
+        {
+          tk: "SOFA", name: "PT Solusi Environment Asia Tbk (dulu Boston Furniture)", cat: "A",
+          badge: "Transformasi berjalan", badgeCls: "a",
+          mcap: 271, mcapTxt: "~Rp271 M", price: 164, priceTxt: "Rp164", chg: "+2,50%",
+          score: 4, scoreTxt: "4/5",
+          status: "Akuisisi 70,96% selesai (Okt 2025) · ganti nama & sektor",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen", txt: "AIC closing 70,96% @Rp21 = Rp24,64 miliar pada 24 Okt 2025 (CSPA-nya bahkan punya addendum perubahan harga); MTO @Rp62 berjalan 2 Feb–6 Mar 2026; ganti nama efektif 9 Jan 2026. Transformasi waste-to-energy nyata secara kelembagaan — anak usaha PT Ananta Energi Asia didirikan 5 Feb 2026 dan masuk 10% di dua perusahaan konsorsium Zhejiang Weiming pada 9 Jun 2026 — tetapi tender proyek Danantara belum dimenangkan dan pendapatan EBT belum ada. Saham sempat disuspensi 11 hari bursa dan masuk FCA (20–29 Okt 2025) setelah naik +616% dalam 3 bulan.", srcs: [["Indopremier (closing)", "https://www.indopremier.com/module/newsDetail.php?jdl=Emiten_Dicaplok_Mau_Garap_Bisnis_Waste_to_Energy__Saham_Lari_616%25__Siap_siap&news_id=477683&group_news=RESEARCHNEWS&taging_subtype=SOFA&name&search=y_general&q=Boston+Furniture+Industries&halaman=1"]] },
+          who: "PT Asia Investment Capital (AIC) — mengambil alih 70,96% pada Oktober 2025",
+          signal: "Ganti nama efektif 9 Januari 2026; bisnis beralih dari furnitur ke energi baru terbarukan / waste-to-energy. Membentuk konsorsium dengan Zhejiang Weiming (Tiongkok) dan Danantara untuk proyek PSEL Denpasar Raya dan Bogor Raya (kontrak jual listrik PLN 30 tahun menurut manajemen); situs resmi mencatat RUPS Mei 2026 menyetujui rights issue.",
+          minus: "Pengambilalihan sudah selesai — ini contoh yang sudah terjadi, bukan target berikutnya. Besaran rights issue tidak dikutip karena sumber berbeda-beda.",
+          srcs: [["Indopremier", "https://www.indopremier.com/ipotku/newsDetail.php?jdl=Ekspansi_Bisnis_EBT__SOFA_Berganti_Nama_Jadi_Solusi_Environment_Asia&news_id=482887&group_news=RESEARCHNEWS&taging_subtype=SOFA&name=&search=y_general&q=Solusi Environment Asia&halaman=1"], ["Situs resmi SOFA", "https://www.solusienvironmentasia.com/about-us/"]]
+        },
+        {
+          tk: "KRYA", name: "PT Bangun Karya Perkasa Jaya Tbk", cat: "A",
+          badge: "Akuisisi selesai", badgeCls: "a",
+          mcap: 68, mcapTxt: "~Rp68 M", price: 41, priceTxt: "Rp41", chg: "−2,38%",
+          score: 3.5, scoreTxt: "3,5/5",
+          status: "Pengendali baru · masuk ekosistem kendaraan listrik",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen (transformasi berjalan)", txt: "Green City SG closing 41% @Rp33 pada 26 Agu 2025 (682.207.800 saham per 31 Des 2025, menurut laporan registrasi pemegang efek); MTO selesai Des 2025 tanpa ada saham publik yang dilepas. KRYA juga sudah membeli 51% PT Green City Traffic/ECGO (Rp10,41 miliar) dan ada kontrak ECGO–EVMoto 10.000 motor listrik senilai Rp240 miliar. Belum terverifikasi: pelaksanaan rights issue Rp200–300 miliar, dan penyebab kepemilikan Green City SG yang tampil hanya 22,7% pada data terbaru (turun dari 41%).", srcs: [["Dokumen IDX (konfirmasi DD)", "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202507/8083fe5a05_7031250c9f.pdf"]] },
+          who: "Green City SG Pte. Ltd. bersama Rich Step International Ltd. dan PT Green Power Group Tbk (LABA)",
+          signal: "KRYA membeli 51% PT Green City Traffic (ECGO, motor listrik) dan masuk ekosistem EV — ride-hailing EVMOTO dengan target 50.000 unit pada 2026. Rights issue Rp200–300 miliar direncanakan untuk ekspansi ECGO.",
+          minus: "Angka pengendali berbeda antar sumber (41% yang sudah tuntas vs 62% rencana konsorsium) sehingga market cap ini perkiraan kasar; harga saham justru jatuh dari Rp190 setahun lalu ke Rp41; struktur pengendali bertingkat membuat UBO kurang jelas.",
+          srcs: [["InvestorTrust", "https://investortrust.id/market/77237/usai-diakuisisi-dan-jelang-sejumlah-aksi-korporasi-saham-bangun-karya-krya-bisa-menuju-rp-350?page=english-edition"]]
+        },
+        {
+          tk: "FUTR", name: "PT Futura Energi Global Tbk (dulu Lini Imaji Kreasi Ekosistem)", cat: "A",
+          badge: "Akuisisi selesai", badgeCls: "a",
+          mcap: 770, mcapTxt: "~Rp770 M", price: 116, priceTxt: "Rp116", chg: "+2,65%",
+          score: 3.5, scoreTxt: "3,5/5",
+          status: "Akuisisi 45% selesai (9 Sep 2025) · ganti nama & sektor",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen (transformasi belum terbukti)", txt: "Ardhantara closing 45% @Rp11 pada 9 Sep 2025; MTO @Rp79 berjalan 17 Des 2025–15 Jan 2026 (pembayaran 27 Jan 2026). Tetapi transformasinya belum terbukti: geothermal Gunung Slamet 220 MW dan PLTS atap 130 MW masih rencana/studi kelayakan — belum ada produksi atau pendapatan. Saham disuspensi BEI sejak 26 Sep 2025 (status pencabutannya tidak terverifikasi), dan harga pasar saat suspensi Rp500 — sekitar 45× harga akuisisinya.", srcs: [["Dokumen IDX (Term Sheet)", "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202508/a27141c4a6_84946ad047.pdf"], ["Dokumen IDX (MTO)", "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202512/2cd4d58087_120d4d15e4.pdf"]] },
+          who: "PT Aurora Dhana Nusantara (Ardhantara) — mengakuisisi 45% @Rp11 dari PT Digital Futurama Global",
+          signal: "Ganti nama Februari 2025; beralih dari kreatif/konsultasi ke holding energi baru terbarukan, dengan aset geothermal Gunung Slamet (estimasi 220 MW) milik pengendali baru. Ini pengambilalihan kedua setelah Hexa Prima Nusantara (Oktober 2024).",
+          minus: "Tidak ditemukan rencana rights issue jumbo; ekosistem Ardhantara tidak sebesar konglomerat acuan.",
+          srcs: [["Ugems.id", "https://www.ugems.id/web/guest/b/deretan-emiten-yang-berganti-nama-selama-tahun-2025"], ["Lap. keuangan FUTR Jun 2026", "https://futura-energi.com/wp-content/uploads/2026/09/Report-FUTR-30-Juni-2026.pdf"]]
+        },
+        {
+          tk: "AMMS", name: "PT Agung Menjangan Mas Tbk", cat: "A",
+          badge: "Akuisisi selesai", badgeCls: "a",
+          mcap: 111, mcapTxt: "~Rp111 M", price: 90, priceTxt: "Rp90", chg: "0,00%",
+          score: 3.5, scoreTxt: "3,5/5",
+          status: "Akuisisi 51% selesai (24 Des 2025) · ganti sektor radikal",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen", txt: "Radiant Ruby closing 51% @Rp30 = Rp18,9 miliar pada 24 Des 2025; MTO @Rp156 berjalan 3 Feb–4 Mar 2026 (pembayaran 9 Mar 2026) dan dananya dibuktikan dengan Surat Keterangan Referensi Bank BRI No. B.1845-V/KC/OPS/12/2025. Yang belum terbukti: arah ke aset keuangan digital/tokenisasi — baru pernyataan tujuan, belum ada aset atau produk terverifikasi. Harga pasar sempat Rp420 (29 Des 2025), 14× harga akuisisinya.", srcs: [["Indopremier (closing)", "https://www.indopremier.com/module/newsDetail.php?jdl=Radiant_Tuntaskan_Akuisisi_Atas_Agung_Menjangan_Mas_(AMMS)&news_id=482338&group_news=RESEARCHNEWS&taging_subtype=AMMS&name=&search=y_general&q=Agung Menjangan Mas&halaman=1"]] },
+          who: "Radiant Ruby Company Ltd (asing) — UBO Brian Limiardi dan David Viratama Batubara",
+          signal: "Mengambil alih 630.001.369 saham (51%) @Rp30 = Rp18,90 miliar — akuisisi termurah di daftar ini, bahkan di bawah PANI. Tujuan yang dinyatakan: AMMS akan berperan di industri aset keuangan digital — dari budidaya udang ke keuangan digital. Tender wajib berjalan @Rp156 (Feb–Mar 2026).",
+          minus: "Belum ada rights issue / injeksi aset yang diumumkan; UBO bukan konglomerat besar yang dikenal; harga sempat +924% sejak awal 2025 lalu jatuh ke Rp90.",
+          srcs: [["Keterbukaan IDX (tender wajib)", "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202602/46ba922050_b75dd4d03a.pdf"]]
+        },
+        {
+          tk: "IDEA", name: "PT Idea Indonesia Akademi Tbk", cat: "A",
+          badge: "Akuisisi selesai", badgeCls: "a",
+          mcap: 421, mcapTxt: "~Rp421 M", price: 396, priceTxt: "Rp396", chg: "+2,59%",
+          score: 3, scoreTxt: "3/5",
+          status: "Akuisisi 66,58% selesai (9 Nov 2026) · ubah KBLI & pengurus",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen", txt: "PJBS ditandatangani 2 Nov 2026; Nawasena closing 66,58% @Rp53,73 = Rp38 miliar pada 9 Nov 2026; RUPSLB 12 Nov 2026 menyetujui pengambilalihan, susunan pengurus baru, dan perubahan Pasal 3 (KBLI). MTO dinyatakan akan digelar sesuai POJK 9/2018, tetapi harga dan periodenya belum ditemukan.", srcs: [["Periskop (PJBS)", "https://periskop.id/pasar-modal/20261104/nawasena-nugra-investama-sepakati-pembelian-6658-saham-idea"], ["Investor.id (MTO menanti)", "https://investor.id/market/460610/nawasena-bakal-jadi-pengendali-idea-tender-wajib-menanti"]] },
+          who: "PT Nawasena Nugra Investama — konsorsium perusahaan investasi; salah satu UBO utama Yukki Nugrahawan Hanafi (Wakil Ketua KADIN)",
+          signal: "Pengambilalihan 707.322.700 saham (66,58%) @Rp53,73 = ~Rp38 miliar, disetujui RUPSLB 12 November 2026; tender wajib menyusul. RUPSLB yang sama mengubah susunan direksi/komisaris dan Pasal 3 Anggaran Dasar (KBLI).",
+          minus: "Belum ada rencana rights issue, ganti nama, atau ekosistem raksasa yang teridentifikasi; harga sudah naik +429% dalam setahun (Rp73 → Rp396) sehingga “murah” sebagai cangkang sudah berkurang.",
+          srcs: [["InvestorTrust", "https://investortrust.id/market/122390/nawasena-resmi-kuasai-66-58-saham-idea-rogoh-kocek-rp-38-miliar"]]
+        },
+        {
+          tk: "INPS", name: "PT Indah Prakasa Sentosa Tbk", cat: "A",
+          badge: "Pengendali baru", badgeCls: "a",
+          mcap: null, mcapTxt: "Tidak dihitung", price: null, priceTxt: "Rp1.065", priceNote: "data terakhir 17 Sep 2026", chg: null,
+          score: 3, scoreTxt: "3/5",
+          status: "Pengendali baru (Apr 2026) · private placement Rp125 M",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen", txt: "GIGP membeli 87,48% @Rp88,81 = Rp50,5 miliar lewat Akta Jual Beli No. 25–27 tanggal 23 Apr 2026; MTO @Rp552 berjalan 18 Jun–17 Jul 2026 (pembayaran 21 Jul 2026) — hanya 5.000 saham yang ditenderkan publik. Catatan keras: angka kepemilikan GIGP bertentangan antar sumber — 87,48% pasca-MTO menurut dokumen IDX vs 65,86% sebelum private placement menurut artikel Nov 2026 — dan selisihnya tidak terjelaskan; jangan pakai salah satu angka tanpa memeriksa registrasi pemegang efek terbaru.", srcs: [["Dokumen IDX (MTO)", "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202606/f40d4cc077_53928c0ef4.pdf"]] },
+          who: "PT Graha Inti Guna Persada (GIGP) — menjadi pengendali pada April 2026 (pembelian 87,49% menurut Investor.id)",
+          signal: "Private placement maks 1,25 miliar saham @Rp100 = Rp125 miliar, seluruhnya diambil GIGP; dana untuk pelunasan utang (Rp33,55 M) dan penyertaan modal ke anak usaha PT Tri Satria Indah Motor (Rp91,45 M). Pasca-placement GIGP naik 65,86% → 88,32% dan mengakuisisi Tri Satria (6 Okt 2026).",
+          minus: "Instrumennya private placement, bukan rights issue jumbo; tidak ada ganti nama/sektor; free float diperkirakan jatuh ke ~11,68% — di bawah minimum BEI 15% — dan itu risiko regulasi (GIGP berkomitmen melepas saham hingga ≥15%). Harga terkini tidak terverifikasi, jadi market cap tidak dihitung.",
+          srcs: [["Investor.id", "https://investor.id/market/460825/gebrakan-baru-emiten-portofolio-andry-hakim"]]
+        },
+        {
+          tk: "VISI", name: "PT Satu Visi Putra Tbk", cat: "A",
+          badge: "Backdoor selesai", badgeCls: "done",
+          mcap: 1660, mcapTxt: "~Rp1,66 T", price: 520, priceTxt: "Rp520", chg: "−5,45%",
+          score: 3, scoreTxt: "3/5",
+          status: "Akuisisi 61,85% selesai (9 Jun 2026) · ekspansi ke kesehatan",
+          verif: { tier: 1, label: "Verifikasi: akuisisi nyata — terbukti dokumen, pola harga paling bermasalah", txt: "Harmoni Semesta closing 61,85% @Rp94 = Rp178,74 miliar pada 9 Jun 2026 — saat harga pasarnya Rp1.095, alias 11,6× harga akuisisi. Akuisisi 72,91% RS Hasna Medika (HMBC, total Rp286 miliar) juga selesai 30 Okt 2026, dan private placement @Rp994 berjalan Okt 2026. Tetapi harga kemudian jatuh −51,6% dari puncak Rp1.470 (28 Sep 2026) ke Rp565 (16 Nov 2026), sementara penjualan bersih 9M2026 turun 35,26% ke Rp161,99 miliar dan perseroan membukukan rugi bersih Rp4,36 miliar. Harga MTO Rp277 yang beredar hanya bersumber dari ulasan/video yang merujuk KSEI — belum terverifikasi dari dokumen IDX langsung.", srcs: [["Investor.id (HMBC)", "https://investor.id/market/461867/perusahaan-raffi-ahmad-akuisisi-rumah-sakit"], ["Lap. kepemilikan OJK 31 Okt 2026", "https://indopremier.com/xdir/product/f/aireport_2026_10_31/VISI/lk-31102026-4857-00.pdf-0.pdf"]] },
+          who: "PT Harmoni Semesta Investama — Nagita Slavina 51%, Raffi Ahmad 49%",
+          signal: "Mengambil alih 61,85% (1.901.580.000 saham) @Rp94 = Rp178,74 miliar dari David Dwiputra, disusul private placement Oktober 2026 (+72,4 juta saham @Rp994 = Rp72,03 miliar, termasuk dari Boy Thohir). Pasca-akuisisi VISI menjual aset tanah/bangunan Rp75 miliar dan menyiapkan Rp286 miliar untuk menguasai 72,91% PT Hasna Medika — ekspansi ke sektor kesehatan.",
+          minus: "Market cap sudah ~Rp1,66 triliun — bukan cangkang kecil lagi; “ekosistem” pengendalinya figur selebritas/pengusaha, bukan konglomerat industri atau grup teknologi seperti pada PANI/ARTO/BBHI.",
+          srcs: [["Bloomberg Technoz", "https://www.bloombergtechnoz.com/detail-news/119671/semarak-saham-backdoor-listing-saat-bursa-ipo-penuh-tantangan/2"]]
+        },
+        {
+          tk: "UDNG", name: "PT Agro Bahari Nusantara Tbk", cat: "B",
+          badge: "Rumor — dibantah", badgeCls: "b",
+          mcap: 350, mcapTxt: "~Rp350 M", price: 200, priceTxt: "Rp200", chg: "−1,96%",
+          score: null, scoreTxt: "Potensial ★★★★★ · kepastian sangat rendah",
+          status: "Rumor Jan 2026 · dibantah manajemen 20 Jan 2026",
+          verif: { tier: 3, label: "Verifikasi: belum terbukti — hanya rumor (manajemen membantah)", txt: "Tidak ditemukan satu pun dokumen: tidak ada pengumuman negosiasi, CSPA/PJBS, perubahan pengendali, atau MTO atas UDNG. Klarifikasi Dirut Vincent Lukito ke BEI (20 Jan 2026): pemegang saham pengendali belum berubah dan belum menandatangani perjanjian definitif; manajemen juga tidak mengetahui rencana perubahan sektor usaha. Keterbukaan Indosat soal FiberCo menyebut pengambilalihan lewat “suatu perusahaan terbuka yang akan ditentukan kemudian” — nama UDNG tidak pernah disebut di dokumen itu. BEI memasukkan UDNG dalam pengawasan UMA sejak 6–8 Feb 2026, setelah harganya +248,94% dalam 6 bulan.", srcs: [["Fortune IDN (klarifikasi)", "https://www.fortuneidn.com/market/ada-isu-akuisisi-oleh-konsorsium-hashim-hingga-aguan-udng-klarifikasi-00-3dhnm-krhrb2"], ["Investor.id (FiberCo)", "https://investor.id/market/422956/rencana-transaksi-besar-dan-penting-emitennya-masih-misterius/all"]] },
+          who: "(Rumor) Konsorsium FiberCo: Arsari Group (Hashim Djojohadikusumo) + Indosat Ooredoo Hutchison + Northstar Group",
+          signal: "Rumor Januari 2026: Arsari + Indosat + Northstar memformalkan FiberCo (infrastruktur serat optik, valuasi ~Rp14,6 triliun). Keterbukaan Indosat menyebut pengambilalihan FiberCo “secara tidak langsung melalui suatu perusahaan terbuka yang sahamnya tercatat di BEI”, dengan opsi setoran modal lewat HMETD — analis menilai UDNG, emiten tambak udang, berpotensi jadi kendaraannya. Jika benar, ini yang paling mirip PANI.",
+          minus: "Bantahan resmi: Dirut UDNG menyatakan pengendali belum berubah dan belum ada perjanjian definitif; manajemen “tidak mengetahui” rencana perubahan sektor. Sampai 24 Nov 2026 tidak ditemukan kelanjutan (CSPA/tender/RUPS), dan harga sudah −93,6% dalam setahun. Perlakukan sebagai rumor, bukan kandidat akuisisi.",
+          srcs: [["CNBC via Indopremier", "https://www.indopremier.com/module/newsDetail.php?news_id=483373&group_news=RESEARCHNEWS"], ["IQPlus (bantahan)", "https://www.iqplus.info/news/stock_news/udng-respons-rumor-caplok-hashim-northstar--manajemen-udng-buka-suara,01957712.html"]]
+        },
+        {
+          tk: "DPUM", name: "PT Dua Putra Utama Makmur Tbk", cat: "A",
+          badge: "Closing selesai · MTO tertunda resmi", badgeCls: "a",
+          mcap: null, mcapTxt: "Tidak dihitung", price: null, priceTxt: "Rp276", priceNote: "terakhir diperdagangkan (suspensi, Jan 2026)", chg: null,
+          score: 2.5, scoreTxt: "2,5/5",
+          status: "Closing 59,24% selesai 8 Mei 2026 · MTO dijadwalkan ulang",
+          who: "PT Rama Indonesia (Unirama Group) — membeli 59,24% dari PT Pandawa Putra Investama",
+          signal: "Pengumuman negosiasi 22 Januari 2026; uji tuntas selesai 6 Maret 2026 (surat Rama No. 001/RI/III/2026); lalu <strong>closing benar-benar terjadi pada 8 Mei 2026</strong>: 2.473.270.000 saham @Rp88 = Rp217,65 miliar (diumumkan 11 Mei 2026). MTO-nya ditunda karena kebakaran fasilitas pabrik di Pati pada 6 Juni 2026 — dana dialihkan sementara untuk pemulihan usaha — dan dijadwalkan ulang: periode 24 Sep–23 Okt 2026, pembayaran 9 Nov 2026.",
+          minus: "Hasil akhir MTO (berapa saham ditenderkan; apakah pembayaran 9 Nov 2026 terealisasi) belum terverifikasi. Rama bukan konglomerat/teknologi raksasa, dan belum ada rights issue atau ganti sektor — kemiripan polanya dengan PANI dkk. tetap rendah-sedang meski akuisisinya nyata.",
+          srcs: [["InvestorTrust (closing)", "https://investortrust.id/market/116109/rama-indonesia-resmi-jadi-pengendali-baru-dua-putra-dpum-berikut-fokus-pengembangannya"], ["Kontan (closing + MTO)", "https://id.tradingview.com/news/kontan:30b7c760f87ea:0/"], ["Pengumuman IDX (negosiasi)", "https://idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202601/f58a8b8099_eddb13d833.pdf"]],
+          verif: { tier: 1, label: "Akuisisi nyata — terbukti dokumen", txt: "Closing 59,24% @Rp88 = Rp217,65 miliar pada 8 Mei 2026; MTO ditunda resmi karena kebakaran pabrik (jadwal ulang 24 Sep–23 Okt 2026, bayar 9 Nov 2026) — hasil akhirnya belum terverifikasi.", srcs: [] }
+        },
+        {
+          tk: "TAXI", name: "PT Express Transindo Utama Tbk", cat: "B",
+          badge: "Cocok pola saja", badgeCls: "b",
+          mcap: 102, mcapTxt: "~Rp102 M", price: 10, priceTxt: "Rp10", chg: "0,00%",
+          score: 2, scoreTxt: "2/5",
+          status: "Tanpa sinyal apa pun · tanpa pengendali sejak Mei 2019",
+          verif: { tier: 3, label: "Verifikasi: belum terbukti — hanya rumor / pola", txt: "Pencarian verifikasi tidak menemukan satu pun pengumuman negosiasi, CSPA/PJBS, perubahan pengendali, RUPSLB akuisisi, MTO, atau pembayaran terkait akuisisi TAXI. Daftar keterbukaan resmi Express Group hanya memuat RUPS tahunan, kontrak, dan laporan registrasi pemegang efek. Struktur tanpa pengendali membuat TAXI mudah diambil alih secara teori — tetapi itu bukan bukti ada pihak yang sedang mengakuisisinya.", srcs: [["Keterbukaan Express Group", "https://expressgroup.co.id/expressgroup/InvestorRelation/keterbukaan_informasi"]] },
+          who: "— (tidak ada calon pengendali)",
+          signal: "Tidak ada sinyal. Yang ada hanya struktur yang “menggoda” secara teori: tidak ada pemegang saham di atas 5% per September 2026 (terbesar Lauw Susanto 4,27%) dan harga saham Rp10 dengan 10,22 miliar saham beredar.",
+          minus: "Justru bertentangan dengan kriteria (5): free float ~93,9% dan tersebar membuat pengambilalihan lewat pembelian blok pengendali tidak dimungkinkan — calon pengendali harus mengakumulasi dari pasar. “Murah + tanpa pengendali” saja tidak cukup.",
+          srcs: [["Receh.in", "https://www.receh.in/2026/10/saham-taxi-rp12-dan-free-float-939.html"]]
+        },
+        {
+          tk: "GZCO", name: "PT Gozco Plantations Tbk", cat: "X",
+          badge: "Bukan kandidat", badgeCls: "x",
+          mcap: null, mcapTxt: "—", price: null, priceTxt: "—", chg: null,
+          score: null, scoreTxt: "Rumor dibantah",
+          status: "Rumor Okt 2025 · dibantah resmi ke BEI",
+          verif: { tier: 3, label: "Verifikasi: belum terbukti — rumor dibantah manajemen", txt: "Tidak ada CSPA, negosiasi, perubahan pengendali, RUPSLB akuisisi, MTO, atau pembayaran. Bantahan resmi dua kali: 18 Okt 2025 (Corsec Liviana, keterbukaan BEI) — “tidak terdapat informasi, komunikasi, maupun pembahasan resmi” dengan PT Energi Melayani Negeri atau pihak lain soal akuisisi; dan Jun 2026 (surat No. 018/EXT/GZC-JKT/COR/VI/2026) — perseroan tidak mengetahui adanya informasi material, tidak memiliki rencana aksi korporasi setidaknya 3 bulan ke depan, dan fluktuasi harga 25 Mei–5 Jun 2026 “murni disebabkan mekanisme pasar saja”.", srcs: [["Indopremier (bantahan)", "https://www.indopremier.com/module/newsDetail.php?news_id=476745&group_news=RESEARCHNEWS"], ["Dokumen klarifikasi Jun 2026", "https://cdn.financialreports.eu/financialreports/media/filings/69283/2026/RNS/69283_rns_2026-06-10_e394cb2b-55f6-4f8c-ab0d-bf67a5ae686c.pdf"]] },
+          who: "(Rumor) PT Energi Melayani Negeri — afiliasi Hapsoro “Happy” Sukmonohadi",
+          signal: "Rumor Oktober 2025 bahwa EMN akan mengambil ~50% saham GZCO sempat mendorong harga +306% dalam 3 bulan.",
+          minus: "Manajemen GZCO membantah resmi ke BEI (17–20 Oktober 2025): tidak ada pembicaraan/komunikasi resmi dengan EMN atau pihak mana pun soal akuisisi. Dicantumkan hanya sebagai pengingat bahwa rumor + reli harga ≠ akuisisi.",
+          srcs: [["Indopremier", "https://www.indopremier.com/module/newsDetail.php?news_id=476793&group_news=RESEARCHNEWS"]]
+        }
+      ];
+
+      function fmtStars(score) {
+        if (score == null) return "";
+        var full = Math.floor(score), half = (score - full) >= 0.5;
+        var s = '<span class="stars">';
+        for (var i = 0; i < full; i++) s += "★";
+        s += "</span>";
+        if (half) s += '<span class="half-star">★</span>';
+        var empty = 5 - full - (half ? 1 : 0);
+        for (var j = 0; j < empty; j++) s += "☆";
+        return s;
+      }
+
+      function sparkSVG(data, w, h) {
+        if (!data || data.length < 2) return "";
+        var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
+        var useLog = (max / Math.max(min, 1)) > 10;
+        function t(v) { return useLog ? Math.log(v) : v; }
+        var tmin = t(min), tmax = t(max), pad = (tmax - tmin) * 0.08 || 1;
+        tmin -= pad; tmax += pad;
+        var pts = data.map(function (v, i) {
+          var x = (i / (data.length - 1)) * w;
+          var y = h - ((t(v) - tmin) / (tmax - tmin)) * h;
+          return x.toFixed(1) + "," + y.toFixed(1);
+        }).join(" ");
+        var last = data[data.length - 1];
+        var lx = w, ly = h - ((t(last) - tmin) / (tmax - tmin)) * h;
+        return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
+          '<polyline points="' + pts + '" fill="none" stroke="var(--chart-line)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>' +
+          '<circle cx="' + lx + '" cy="' + ly.toFixed(1) + '" r="3" fill="var(--chart-line)"/></svg>';
+      }
+
+      function cardHTML(c) {
+        var wk = WEEKLY[c.tk];
+        var spark = "";
+        if (wk) {
+          var first = wk[0], last = wk[wk.length - 1];
+          var dir = last >= first;
+          var wmin = Math.min.apply(null, wk), wmax = Math.max.apply(null, wk);
+          var logNote = (wmax / Math.max(wmin, 1)) > 10 ? " · skala log" : "";
+          spark = '<div class="spark">' + sparkSVG(wk, 300, 46) +
+            '<div class="cap"><span>±1 thn, penutupan mingguan s.d. 16 Nov: Rp' + first.toLocaleString("id-ID") + ' → Rp' + last.toLocaleString("id-ID") + logNote + '</span>' +
+            '<span class="' + (dir ? "up" : "down") + '">' + (dir ? "▲" : "▼") + ' ' + Math.abs(((last - first) / first) * 100).toFixed(0) + '%</span></div></div>';
+        }
+        var chgCls = c.chg && c.chg.indexOf("−") === 0 ? "down" : (c.chg && c.chg !== "0,00%" ? "up" : "");
+        var priceCell = '<div><div class="k">Harga 23 Nov 2026</div><div class="v">' + c.priceTxt +
+          (c.chg ? ' <small class="' + chgCls + '">' + c.chg + '</small>' : '') +
+          (c.priceNote ? '<small>' + c.priceNote + '</small>' : '') + '</div></div>';
+        var scoreCell = '<div><div class="k">Kemiripan pola</div><div class="v score">' +
+          (c.score != null ? fmtStars(c.score) + ' ' + c.scoreTxt : c.scoreTxt) + '</div></div>';
+        var srcs = c.srcs.map(function (s) {
+          return '<a href="' + s[1] + '" target="_blank" rel="noopener">' + s[0] + '</a>';
+        }).join(" ");
+        var verif = "";
+        if (c.verif) {
+          var vsrcs = (c.verif.srcs || []).map(function (s) {
+            return '<a href="' + s[1] + '" target="_blank" rel="noopener">' + s[0] + '</a>';
+          }).join(" ");
+          verif = '<div class="verif t' + c.verif.tier + '"><span class="vlabel">' + c.verif.label + '</span>' + c.verif.txt +
+            (vsrcs ? '<p class="srcs">Sumber verifikasi: ' + vsrcs + '</p>' : '') + '</div>';
+        }
+        return '<article class="card' + (c.cat !== "A" ? " rumor" : "") + '">' +
+          '<div class="card-top"><div><div class="tk">' + c.tk + '</div><div class="nm">' + c.name + '</div></div>' +
+          '<span class="badge ' + c.badgeCls + '">' + c.badge + '</span></div>' +
+          '<div class="card-stats">' +
+            '<div><div class="k">Market cap*</div><div class="v">' + c.mcapTxt + '</div></div>' +
+            priceCell + scoreCell +
+          '</div>' + spark +
+          '<p class="who"><strong>Pengendali (baru / potensial)</strong>' + c.who + '</p>' +
+          '<p class="signal">' + c.signal + '</p>' +
+          '<div class="minus"><strong>Catatan:</strong> ' + c.minus + '</div>' +
+          verif +
+          '<p class="srcs">Status: ' + c.status + '<br/>Sumber: ' + srcs + '</p>' +
+          '</article>';
+      }
+
+      var state = { filter: "all", vfilter: "all", sort: "score" };
+      function render() {
+        var list = CANDIDATES.filter(function (c) {
+          var okCat = state.filter === "all" || c.cat === state.filter;
+          var okVer = state.vfilter === "all" || (c.verif && String(c.verif.tier) === state.vfilter);
+          return okCat && okVer;
+        });
+        list.sort(function (a, b) {
+          if (state.sort === "score") return (b.score == null ? -1 : b.score) - (a.score == null ? -1 : a.score);
+          if (state.sort === "mcap-desc") return (b.mcap == null ? -1 : b.mcap) - (a.mcap == null ? -1 : a.mcap);
+          if (state.sort === "mcap-asc") return (a.mcap == null ? 1e12 : a.mcap) - (b.mcap == null ? 1e12 : b.mcap);
+          if (state.sort === "price-desc") return (b.price == null ? -1 : b.price) - (a.price == null ? -1 : a.price);
+          return 0;
+        });
+        document.getElementById("cards").innerHTML = list.length ? list.map(cardHTML).join("") :
+          '<p class="fineprint" style="grid-column:1/-1">Tidak ada nama pada kombinasi saringan ini. Contohnya, Kategori B memang tidak berisi satu pun emiten berstatus “terbukti dokumen” — isinya rumor dan pola saja.</p>';
+        document.getElementById("count-line").textContent = "Menampilkan " + list.length + " dari " + CANDIDATES.length + " nama (NAYZ ditampilkan terpisah di atas)";
+      }
+      document.querySelectorAll(".chip[data-filter]").forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          document.querySelectorAll(".chip[data-filter]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+          chip.setAttribute("aria-pressed", "true");
+          state.filter = chip.getAttribute("data-filter");
+          render();
+        });
+      });
+      document.querySelectorAll(".chip[data-vfilter]").forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          document.querySelectorAll(".chip[data-vfilter]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+          chip.setAttribute("aria-pressed", "true");
+          state.vfilter = chip.getAttribute("data-vfilter");
+          render();
+        });
+      });
+      document.getElementById("sort").addEventListener("change", function (e) {
+        state.sort = e.target.value;
+        render();
+      });
+      render();
+
+      /* ---------- NAYZ big chart ---------- */
+      (function () {
+        var data = WEEKLY.NAYZ, W = 640, H = 250, PL = 44, PR = 52, PT = 14, PB = 26;
+        var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
+        var lo = Math.floor((min - 8) / 10) * 10, hi = Math.ceil((max + 8) / 10) * 10;
+        function X(i) { return PL + (i / (data.length - 1)) * (W - PL - PR); }
+        function Y(v) { return PT + (1 - (v - lo) / (hi - lo)) * (H - PT - PB); }
+        var pts = data.map(function (v, i) { return X(i).toFixed(1) + "," + Y(v).toFixed(1); }).join(" ");
+        var grid = "", step = 20;
+        for (var g = lo; g <= hi; g += step) {
+          grid += '<line x1="' + PL + '" y1="' + Y(g) + '" x2="' + (W - PR) + '" y2="' + Y(g) + '" stroke="var(--chart-grid)" stroke-width="1"/>' +
+            '<text x="' + (PL - 6) + '" y="' + (Y(g) + 4) + '" font-size="11" fill="var(--ink-3)" text-anchor="end">' + g + '</text>';
+        }
+        var lastI = data.length - 1;
+        var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Grafik harga mingguan NAYZ">' + grid +
+          '<polyline points="' + pts + '" fill="none" stroke="var(--chart-line)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>' +
+          '<circle cx="' + X(lastI) + '" cy="' + Y(data[lastI]) + '" r="4" fill="var(--chart-line)"/>' +
+          '<text x="' + (X(lastI) + 8) + '" y="' + (Y(data[lastI]) + 4) + '" font-size="12" font-weight="700" fill="var(--ink)">Rp' + data[lastI] + '</text>' +
+          '<text x="' + PL + '" y="' + (H - 6) + '" font-size="11" fill="var(--ink-3)">Nov 2025</text>' +
+          '<text x="' + (W / 2) + '" y="' + (H - 6) + '" font-size="11" fill="var(--ink-3)" text-anchor="middle">Mei 2026</text>' +
+          '<text x="' + (W - PR) + '" y="' + (H - 6) + '" font-size="11" fill="var(--ink-3)" text-anchor="end">Nov 2026</text></svg>';
+        document.getElementById("nayz-chart").innerHTML = svg;
+      })();
+
+      /* ---------- Market cap log chart (HTML bars, fully responsive) ---------- */
+      (function () {
+        var rows = CANDIDATES.filter(function (c) { return c.mcap != null; })
+          .concat([{ tk: "NAYZ", mcap: 253 }])
+          .sort(function (a, b) { return b.mcap - a.mcap; });
+        var lo = Math.log10(50), hi = Math.log10(2000);
+        function P(v) { return ((Math.log10(v) - lo) / (hi - lo)) * 100; }
+        function fmt(v) { return v >= 1000 ? "~Rp" + (v / 1000).toFixed(2).replace(".", ",") + " T" : "~Rp" + v + " M"; }
+        var ticks = [50, 100, 250, 500, 1000, 2000];
+        var out = '<div class="mcap-plot" role="img" aria-label="Grafik batang perbandingan kapitalisasi pasar, skala logaritmik">';
+        ticks.forEach(function (t) {
+          out += '<div class="mcap-grid" style="left:' + P(t).toFixed(2) + '%"></div>';
+        });
+        rows.forEach(function (r) {
+          var rumor = (r.tk === "UDNG");
+          out += '<div class="mcap-row"><div class="mcap-head"><span class="tk">' + r.tk + '</span>' +
+            '<span class="val">' + fmt(r.mcap) + (rumor ? " (rumor)" : "") + '</span></div>' +
+            '<div class="mcap-bar' + (rumor ? " rumor" : "") + '" style="width:' + P(r.mcap).toFixed(2) + '%"></div></div>';
+        });
+        out += '<div class="mcap-axis">';
+        ticks.forEach(function (t, i) {
+          var cls = i === 0 ? "first" : (i === ticks.length - 1 ? "last" : "");
+          out += '<span class="' + cls + '" style="left:' + P(t).toFixed(2) + '%">' + (t >= 1000 ? "Rp" + (t / 1000) + " T" : "Rp" + t + " M") + '</span>';
+        });
+        out += "</div></div>";
+        document.getElementById("mcap-chart").innerHTML = out;
+      })();
+    </script>
+  </body>
+</html>
